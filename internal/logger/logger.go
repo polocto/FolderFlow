@@ -1,42 +1,80 @@
 package logger
 
 import (
+	"context"
 	"log/slog"
 	"os"
 )
 
-// Log is the global logger instance.
-var Log *slog.Logger
+type MultiHandler struct {
+	handlers []slog.Handler
+}
 
-func init() {
-	// Open a file for logging
-	file, err := os.OpenFile("folderflow.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func (h *MultiHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	for _, handler := range h.handlers {
+		if handler.Enabled(ctx, level) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *MultiHandler) Handle(ctx context.Context, r slog.Record) error {
+	for _, handler := range h.handlers {
+		if handler.Enabled(ctx, r.Level) {
+			_ = handler.Handle(ctx, r)
+		}
+	}
+	return nil
+}
+
+func (h *MultiHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	hs := make([]slog.Handler, len(h.handlers))
+	for i, handler := range h.handlers {
+		hs[i] = handler.WithAttrs(attrs)
+	}
+	return &MultiHandler{handlers: hs}
+}
+
+func (h *MultiHandler) WithGroup(name string) slog.Handler {
+	hs := make([]slog.Handler, len(h.handlers))
+	for i, handler := range h.handlers {
+		hs[i] = handler.WithGroup(name)
+	}
+	return &MultiHandler{handlers: hs}
+}
+
+func Init(verbose bool) error {
+	// File handler (always debug)
+	file, err := os.OpenFile(
+		"folderflow.log",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0644,
+	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	// Create a new logger that writes to the file
-	Log = slog.New(slog.NewJSONHandler(file, &slog.HandlerOptions{
+	fileHandler := slog.NewJSONHandler(file, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
-	}))
-}
+	})
 
-// Info logs a message at Info level.
-func Info(msg string, args ...any) {
-	Log.Info(msg, args...)
-}
+	var handler slog.Handler
 
-// Warn logs a message at Warn level.
-func Warn(msg string, args ...any) {
-	Log.Warn(msg, args...)
-}
+	if verbose {
+		consoleHandler := &VerboseHandler{}
 
-// Error logs a message at Error level.
-func Error(msg string, args ...any) {
-	Log.Error(msg, args...)
-}
+		// Combine
+		handler = &MultiHandler{
+			handlers: []slog.Handler{
+				fileHandler,
+				consoleHandler,
+			},
+		}
+	} else {
+		handler = fileHandler
+	}
 
-// Debug logs a message at Debug level.
-func Debug(msg string, args ...any) {
-	Log.Debug(msg, args...)
+	slog.SetDefault(slog.New(handler))
+	return nil
 }

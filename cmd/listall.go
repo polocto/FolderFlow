@@ -5,10 +5,10 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/polocto/FolderFlow/internal/core"
-	"github.com/polocto/FolderFlow/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +37,7 @@ to quickly create a Cobra application.`,
 		extensions, err := core.ListAllFilesExtensions(path, cfg.DryRun, cfg.Verbose)
 
 		if err != nil {
-			logger.Error(err.Error())
+			slog.Error("An error occured while listing extensions", "error", err)
 			return
 		}
 

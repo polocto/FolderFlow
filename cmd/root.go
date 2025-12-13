@@ -6,6 +6,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/polocto/FolderFlow/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,9 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return logger.Init(cfg.Verbose)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

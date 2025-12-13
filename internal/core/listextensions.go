@@ -1,12 +1,10 @@
 package core
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
-
-	"github.com/polocto/FolderFlow/internal/logger"
 )
 
 func ListAllFilesExtensions(dir string, dryRun bool, verbose bool) ([]string, error) {
@@ -25,10 +23,7 @@ func ListAllFilesExtensions(dir string, dryRun bool, verbose bool) ([]string, er
 		if ext != "" { // Ignore files without extensions
 			extMap[ext] = true
 		} else {
-			logger.Warn(path, "has no extension")
-			if verbose {
-				fmt.Printf("Warn : %s has no extension\n", path)
-			}
+			slog.Warn("File has no extension", "path", path)
 		}
 		return nil
 	})
