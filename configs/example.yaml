@@ -1,0 +1,12 @@
+source_dir: "/path/to/source"
+dest_dirs:
+  images: 
+    path: "/path/to/image"
+    extensions: [".jpg", ".png"]
+  videos: 
+    path: "/path/to/videos"
+    extensions: [".mp4", ".mov"]
+regroup:
+  enable: true
+  path: "/path/to/regroup"
+  link_type: "symlink"  # or "hardlink"
