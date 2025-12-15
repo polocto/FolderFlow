@@ -1,12 +1,35 @@
-source_dir: "/path/to/source"
+source_dirs: 
+  - "./logs/"
 dest_dirs:
   images: 
     path: "/path/to/image"
-    extensions: [".jpg", ".png"]
+    filters:
+      - name: extensions
+        config:
+          extensions: [".jpg", ".png"]
+    strategy: 
+      name: "date"
+      config:
+        format: "2006/01"
   videos: 
     path: "/path/to/videos"
-    extensions: [".mp4", ".mov"]
+    filters:
+      - name: extensions
+        config:
+          extensions: [".mp4", ".mov"]
+    strategy: 
+      name: dirchain
+  school:
+    path: "studies"
+    filters:
+      - name: script
+        config:
+          scriptPath: "./path/to/script"
+    strategy: 
+      name: dirchain
 regroup:
   enable: true
   path: "/path/to/regroup"
-  link_type: "symlink"  # or "hardlink"
+  mode: "symlink"  # or "hardlink" or "copy"
+  strategy: 
+    name: localisation

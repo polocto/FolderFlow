@@ -4,10 +4,14 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"log/slog"
 
+	"github.com/polocto/FolderFlow/internal/config"
+	"github.com/polocto/FolderFlow/internal/core"
 	"github.com/spf13/cobra"
 )
+
+var configFile string
 
 // classifyCmd represents the classify command
 var classifyCmd = &cobra.Command{
@@ -21,7 +25,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("classify called")
+		conf, err := config.LoadConfig(configFile)
+
+		if err != nil {
+			slog.Error("An error occured while loading the config", "error", err)
+			return
+		}
+
+		if err := core.Classify(*conf, cfg.DryRun); err != nil {
+			slog.Error("An error occured while classing the documents", "error", err)
+		}
+		slog.Info("Classification finish")
 	},
 }
 
@@ -36,5 +50,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// classifyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	classifyCmd.Flags().StringVarP(&configFile, "file", "f", "", "")
 }

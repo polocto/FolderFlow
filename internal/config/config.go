@@ -6,19 +6,17 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type DestDir struct {
-	Path       string   `yaml:"path"`
-	Extensions []string `yaml:"extensions"`
+type Regroup struct {
+	Path string `yaml:"path"`
+	Mode string `yaml:"mode,omitempty"` // "symlink", "hardlink" or "copy"
+	// Strategy *strategy.Strategy `yaml:"strategy,omitempty"` // "date", "dirchain", etc.
 }
 
 type Config struct {
-	SourceDir string             `yaml:"source_dir"`
-	DestDirs  map[string]DestDir `yaml:"dest_dirs"` // Map destination name to DestDir
-	Regroup   struct {
-		Enable   bool   `yaml:"enable"`
-		Path     string `yaml:"path"`
-		LinkType string `yaml:"link_type"` // "symlink" or "hardlink"
-	} `yaml:"regroup"`
+	SourceDirs []string `yaml:"source_dirs"`
+	// GlobalStategy *strategy.Strategy `yaml:"global_strategy,omitempty"` // Default strategy if not specified in DestDir
+	DestDirs map[string]DestDir `yaml:"dest_dirs"` // Map destination name to DestDir
+	Regroup  `yaml:"regroup,omitempty"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -33,4 +31,11 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func (c *Config) SetDefault() {
+
+	if c.Regroup.Mode == "" && c.Regroup.Path != "" {
+		c.Regroup.Mode = "symlink"
+	}
 }
