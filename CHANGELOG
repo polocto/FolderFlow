@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Planned]
+|Feature|Example Features|Benefit
+|:-|:-|:-|
+|Dynamic Filtering|Custom scripts, regex, metadata rules|Extensible, powerful filtering
+|Multi-Source|Multiple source dirs, exclusion rules|Manage files from anywhere
+|Regrouping|Nested, virtual, tag-based|Dynamic, rule-based file views
+|Safety|Conflict handling, dry run, backups|Safe, predictable operation
+|Automation|Watch mode, schedules, triggers|Set-and-forget automation
+|Cloud/Remote|Cloud storage, remote sync|Extend beyond local storage
+|UI/Accessibility|TUI, web dashboard, accessibility|User-friendly, inclusive
+|Logging/Reports|Detailed logs, reports, visualization|Transparency, insights
+|Collaboration|Shared configs, team workspaces|Community, teamwork
+|Performance|Parallel, batch, resume|Scalable, efficient
+
 ## [Unreleased]
 
 ### Added
