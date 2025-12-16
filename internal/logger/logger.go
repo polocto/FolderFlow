@@ -54,9 +54,13 @@ func Init(verbose bool) error {
 	if err != nil {
 		return err
 	}
+	var leveler slog.Leveler = slog.LevelInfo
+	if os.Getenv("DEBUG") != "" {
+		leveler = slog.LevelDebug
+	}
 
 	fileHandler := slog.NewJSONHandler(file, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
+		Level: leveler,
 	})
 
 	var handler slog.Handler
