@@ -66,7 +66,7 @@ func Init(verbose bool) error {
 	var handler slog.Handler
 
 	if verbose {
-		consoleHandler := &VerboseHandler{}
+		consoleHandler := NewVerboseHandler(leveler.Level())
 
 		// Combine
 		handler = &MultiHandler{

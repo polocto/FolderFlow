@@ -7,10 +7,16 @@ import (
 	"os"
 )
 
-type VerboseHandler struct{}
+type VerboseHandler struct {
+	level slog.Level
+}
+
+func NewVerboseHandler(level slog.Level) *VerboseHandler {
+	return &VerboseHandler{level: level}
+}
 
 func (h *VerboseHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return true
+	return level >= h.level
 }
 
 func (h *VerboseHandler) Handle(ctx context.Context, r slog.Record) error {
