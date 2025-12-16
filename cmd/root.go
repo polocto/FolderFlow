@@ -40,7 +40,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().BoolVar(&cfg.Verbose, "verbose", false, "enable verbose logging")
+	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.DryRun, "dry-run", false, "dry run (no changes)")
 
 	// Cobra also supports local flags, which will only run
