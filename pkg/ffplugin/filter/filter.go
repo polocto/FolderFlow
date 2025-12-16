@@ -3,7 +3,6 @@ package filter
 import (
 	"fmt"
 	"io/fs"
-	"log/slog"
 )
 
 // Filter defines the interface for custom file filters.
@@ -27,6 +26,11 @@ func NewFilter(name string) (Filter, error) {
 }
 
 func RegisterFilter(name string, factory func() Filter) {
+	if name == "" {
+		panic("filter name cannot be empty")
+	}
+	if _, exists := filterRegistry[name]; exists {
+		panic(fmt.Sprintf("filter '%s' is already registered", name))
+	}
 	filterRegistry[name] = factory
-	slog.Debug("Register a new filter", "name", name)
 }
