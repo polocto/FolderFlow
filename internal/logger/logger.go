@@ -47,7 +47,7 @@ func (h *MultiHandler) WithGroup(name string) slog.Handler {
 func Init(verbose bool) error {
 	// File handler (always debug)
 	file, err := os.OpenFile(
-		"folderflow.log",
+		"logs/folderflow.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0644,
 	)
