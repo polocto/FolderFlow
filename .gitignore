@@ -1,3 +1,5 @@
 folderflow
 ff
 *.log
+test_data/
+!folderflow/
