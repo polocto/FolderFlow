@@ -8,9 +8,10 @@ import (
 )
 
 type DestDir struct {
-	Path     string                 `yaml:"path"`
-	Filters  []*filter.FilterYAML   `yaml:"filters,omitempty"`  // File extensions to include
-	Strategy *strategy.StrategyYAML `yaml:"strategy,omitempty"` // "date", "dirchain", etc.
+	Path       string                 `yaml:"path"`
+	Filters    []*filter.FilterYAML   `yaml:"filters,omitempty"`     // File extensions to include
+	Strategy   *strategy.StrategyYAML `yaml:"strategy,omitempty"`    // "date", "dirchain", etc.
+	OnConflict string                 `yaml:"on_conflict,omitempty"` // "skip", "overwrite", "rename"
 }
 
 func (d *DestDir) LoadPlugins() ([]filter.Filter, strategy.Strategy, error) {
@@ -34,4 +35,10 @@ func (d *DestDir) LoadPlugins() ([]filter.Filter, strategy.Strategy, error) {
 	}
 
 	return filters, strategy, nil
+}
+
+func (d *DestDir) SetDefaults() {
+	if d.OnConflict == "" {
+		d.OnConflict = "rename"
+	}
 }

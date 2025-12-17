@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/polocto/FolderFlow/internal/config"
+	"github.com/polocto/FolderFlow/internal/fsutil"
 	"github.com/polocto/FolderFlow/pkg/concurrency"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
@@ -142,7 +143,7 @@ func processFile(sourceDir, destName string, dest config.DestDir, filters []filt
 			}
 
 			// Move the file using the destination
-			if err := moveFile(path, destFile, dryRun); err != nil {
+			if err := moveFile(path, destFile, dest.OnConflict, dryRun); err != nil {
 				wp.ReportError(fmt.Errorf("failed to move file %s to %s: %w", path, destFile, err))
 				s.RecordFile(false, false, true) // Enregistrer l'erreur
 				return
@@ -227,7 +228,7 @@ func handleRegroup(filePath string, regroup config.Regroup, dryRun bool) error {
 	return nil
 }
 
-func moveFile(srcPath, destPath string, dryRun bool) error {
+func moveFile(srcPath, destPath, onConflict string, dryRun bool) error {
 	slog.Info("Moving file", "source", srcPath, "dest", destPath)
 
 	if dryRun {
@@ -238,6 +239,30 @@ func moveFile(srcPath, destPath string, dryRun bool) error {
 	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
 		slog.Error("Failed to create destination directory", "dir", filepath.Dir(destPath), "err", err)
 		return err
+	}
+
+	if _, err := os.Stat(destPath); err == nil {
+		switch onConflict {
+		case "skip":
+			slog.Info("Destination file already exists, skipping", "dest", destPath)
+			return nil
+		case "overwrite":
+			if err := os.Remove(destPath); err != nil {
+				return err
+			}
+		case "rename": // rename
+			if ok, err := fsutil.FilesEqual(srcPath, destPath); err != nil {
+				slog.Error("Failed to compare files for equality", "source", srcPath, "dest", destPath, "err", err)
+				return err
+			} else if ok {
+				slog.Info("Source and destination files are identical, skipping move", "source", srcPath, "dest", destPath)
+				return nil
+			}
+			destPath = fsutil.GetUniquePath(destPath)
+		default:
+			slog.Error("Unknown conflict resolution strategy", "strategy", onConflict)
+			return fmt.Errorf("unknown conflict resolution strategy: %s", onConflict)
+		}
 	}
 
 	if err := os.Rename(srcPath, destPath); err != nil {
