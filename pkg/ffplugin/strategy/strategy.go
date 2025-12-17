@@ -6,9 +6,11 @@ import (
 	"log/slog"
 )
 
+// Strategy defines the interface for file organization strategies.
+// FinalDirPath should ONLY compute the destination path and MUST NOT modify the filesystem.
 type Strategy interface {
-	// Apply performs the strategy's logic (e.g., move, link, organize)
-	Apply(srcPath, destPath string, info fs.FileInfo, dryrun bool) error
+	// FinalDirPath computes the final directory path for a file based on the strategy.
+	FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error)
 	// Selector returns a unique identifier for the strategy (e.g., "date", "dirchain")
 	Selector() string
 	// LoadConfig allows the strategy to be configured from the YAML config

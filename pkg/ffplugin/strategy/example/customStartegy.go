@@ -10,9 +10,9 @@ type CustomStrategy struct {
 	Custom string `yaml:"custom"`
 }
 
-func (s *CustomStrategy) Apply(srcPath, destPath string, info fs.FileInfo, dryrun bool) error {
+func (s *CustomStrategy) FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error) {
 	// Example: Custom file operation logic
-	return nil
+	return "", nil
 }
 
 func (s *CustomStrategy) Selector() string {

@@ -3,7 +3,6 @@ package strategy
 import (
 	"io/fs"
 	"log/slog"
-	"os"
 	"path/filepath"
 )
 
@@ -19,14 +18,10 @@ func (s *DirChainStrategy) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (s *DirChainStrategy) Apply(srcPath, destPath string, info fs.FileInfo, dryRun bool) error {
+func (s *DirChainStrategy) FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error) {
 
-	finalDest := filepath.Join("hello", filepath.Base(srcPath))
-	slog.Debug("Moving file", "source", srcPath, "destination", finalDest)
-	if dryRun {
-		return nil
-	}
-	return os.Rename(srcPath, finalDest)
+	finalDest := filepath.Join(destDir, filepath.Base(srcDir))
+	return finalDest, nil
 }
 
 func init() {

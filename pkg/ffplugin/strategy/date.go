@@ -3,7 +3,6 @@ package strategy
 import (
 	"io/fs"
 	"log/slog"
-	"os"
 	"path/filepath"
 )
 
@@ -25,10 +24,10 @@ func (s *DateStrategy) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (s *DateStrategy) Apply(srcPath, destPath string, info fs.FileInfo, dryRun bool) error {
+func (s *DateStrategy) FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error) {
 	yearMonth := info.ModTime().Format(s.Format)
-	finalDest := filepath.Join(destPath, yearMonth, filepath.Base(srcPath))
-	return os.Rename(srcPath, finalDest)
+	finalDest := filepath.Join(destDir, yearMonth, filepath.Base(srcDir))
+	return finalDest, nil
 }
 
 func init() {
