@@ -3,3 +3,4 @@ ff
 *.log
 test_data/
 !folderflow/
+.VSCodeCounter/
