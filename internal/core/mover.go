@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"github.com/polocto/FolderFlow/internal/config"
 	"github.com/polocto/FolderFlow/internal/fsutil"
@@ -17,6 +18,7 @@ import (
 
 func Classify(cfg config.Config, dryRun bool) error {
 	slog.Info("Starting classification")
+	var totalStats = NewStats()
 	if len(cfg.SourceDirs) == 0 {
 		slog.Error("No source directories configured, nothing to classify")
 		return fmt.Errorf("no source directories configured")
@@ -40,17 +42,22 @@ func Classify(cfg config.Config, dryRun bool) error {
 			continue
 		}
 
-		if err := processSourceDir(sourceDir, cfg.DestDirs, cfg.Regroup, dryRun); err != nil {
-			return err
+		slog.Info("Processing source directory", "sourceDir", sourceDir)
+		if srcStats, err := processSourceDir(sourceDir, cfg.DestDirs, cfg.Regroup, dryRun, cfg.MaxWorkers); err != nil {
+			slog.Error("Failed to process source directory", "sourceDir", sourceDir, "err", err, "stats", srcStats.String())
+			continue
+		} else {
+			totalStats.Merge(srcStats)
+			slog.Info("Finished processing source directory", "sourceDir", sourceDir, "stats", srcStats.String())
 		}
 	}
+	slog.Info("Classification completed", "totalStats", totalStats.String())
 	return nil
 }
 
 // processSourceDir processes a single source directory according to the provided destination directories and regroup settings.
-func processSourceDir(sourceDir string, destDirs map[string]config.DestDir, regroup config.Regroup, dryRun bool) error {
-	slog.Info("Processing source directory", "sourceDir", sourceDir)
-
+func processSourceDir(sourceDir string, destDirs map[string]config.DestDir, regroup config.Regroup, dryRun bool, maxWorkers int) (*Stats, error) {
+	sourceStats := NewStats()
 	// Load and configure filters as needed
 	// Example: load an extension filter
 	// extFilter := core.LoadExtensionsFilter()
@@ -61,37 +68,41 @@ func processSourceDir(sourceDir string, destDirs map[string]config.DestDir, regr
 		filters, strat, err := dest.LoadPlugins()
 		if err != nil {
 			slog.Error("Failed to load plugins for destination", "dest", destName, "err", err)
-			return err
+			return sourceStats, err
 		}
-		slog.Info("Processing destination", "dest", destName, "strategy", strat.Selector())
+		slog.Debug("Processing destination", "dest", destName, "strategy", strat.Selector())
 
 		if len(filters) == 0 {
 			slog.Warn("No filters configured for destination, all files will match", "dest", destName)
 		}
 		if strat == nil {
 			slog.Error("No strategy configured for destination", "dest", destName)
-			return fmt.Errorf("no strategy configured for destination: %s", destName)
+			return sourceStats, fmt.Errorf("no strategy configured for destination: %s", destName)
 		}
 		if dest.Path == "" {
 			slog.Error("No path configured for destination", "dest", destName)
-			return fmt.Errorf("no path configured for destination: %s", destName)
+			return sourceStats, fmt.Errorf("no path configured for destination: %s", destName)
 		}
 		if sourceDir == dest.Path {
 			slog.Warn("Source directory is the same as destination path, skipping to avoid conflicts", "sourceDir", sourceDir, "destPath", dest.Path)
 			continue
 		}
 		// Implementation of processing logic goes here
-		if err := processFile(sourceDir, destName, dest, filters, strat, dryRun); err != nil {
-			return err
+		if stats, err := processFile(sourceDir, destName, dest, filters, strat, dryRun, maxWorkers); err != nil {
+			sourceStats.Merge(stats)
+			slog.Error("Failed to process files for destination", "dest", destName, "err", err)
+			return sourceStats, err
+		} else {
+			sourceStats.Merge(stats)
+			slog.Debug("Finished processing destination", "dest", destName, "stats", stats.String())
 		}
 	}
-
-	return nil
+	return sourceStats, nil
 }
 
-func processFile(sourceDir, destName string, dest config.DestDir, filters []filter.Filter, strat strategy.Strategy, dryRun bool) error {
-	wp := concurrency.NewWorkerPool(0) // 10 workers max
-	var s stats                        // to track statistics
+func processFile(sourceDir, destName string, dest config.DestDir, filters []filter.Filter, strat strategy.Strategy, dryRun bool, maxWorkers int) (*Stats, error) {
+	wp := concurrency.NewWorkerPool(maxWorkers)
+	s := NewStats()
 	err := filepath.WalkDir(sourceDir, func(path string, d fs.DirEntry, err error) error {
 		slog.Debug("Visiting file", "path", path)
 		skipDir := []string{".git", "node_modules"}
@@ -103,52 +114,54 @@ func processFile(sourceDir, destName string, dest config.DestDir, filters []filt
 			}
 			return nil // Continuer sans descendre dans le répertoire
 		}
-		// Compter les fichiers visités
-		s.totalFiles++
 
 		info, err := os.Stat(path)
 		if err != nil {
 			slog.Error("Failed to stat file", "path", path, "err", err)
-			s.RecordFile(false, false, true) // Enregistrer l'erreur
+			s.RecordError(path, err.Error())
 			return err
 		}
+		s.TotalFile(path, info.Size())
 		wp.Add()
 		go func(path string, info fs.FileInfo) {
 			defer func() {
 				if r := recover(); r != nil {
-					wp.ReportError(fmt.Errorf("panic in goroutine: %v", r))
-					s.RecordFile(false, false, true) // Enregistrer l'erreur
+					err := fmt.Errorf("panic in goroutine: %v", r)
+					wp.ReportError(err)
+					s.RecordError(path, err.Error())
 				}
 				wp.Done()
 			}()
-			slog.Info("Processing file in goroutine", "path", path)
+			slog.Debug("Processing file in goroutine", "path", path)
 			// Check if file matches all filters for this DestDir
 			if ok, err := matchFile(path, info, filters); err != nil {
-				wp.ReportError(fmt.Errorf("error matching file %s: %w", path, err))
-				s.RecordFile(false, false, true) // Enregistrer l'erreur
+				err := fmt.Errorf("error matching file %s: %w", path, err)
+				wp.ReportError(err)
+				s.RecordError(path, err.Error())
 				return
 			} else if !ok {
 				slog.Debug("File did not match", "path", path, "dest", destName)
 				return
 			}
 			// File matched all filters for this DestDir
-			slog.Info("File matched", "path", path, "dest", destName)
-			s.RecordFile(true, false, err != nil) // Enregistrer le fichier comme correspondant
+			slog.Debug("File matched", "path", path, "dest", destName)
+			s.MatchedFile(path, info.Size())
 
 			destFile, err := destPath(sourceDir, dest.Path, path, info, strat)
 			if err != nil {
 				wp.ReportError(fmt.Errorf("failed to compute destination path for file %s: %w", path, err))
-				s.RecordFile(false, false, true) // Enregistrer l'erreur
+				s.RecordError(path, err.Error())
 				return
 			}
 
 			// Move the file using the destination
+			t0 := time.Now()
 			if err := moveFile(path, destFile, dest.OnConflict, dryRun); err != nil {
 				wp.ReportError(fmt.Errorf("failed to move file %s to %s: %w", path, destFile, err))
-				s.RecordFile(false, false, true) // Enregistrer l'erreur
+				s.RecordError(path, err.Error())
 				return
 			}
-			s.RecordFile(false, true, false) // Succès : moved
+			s.MovedFile(path, info.Size(), t0) // Succès : moved
 			// // Handle regrouping
 			// if regroup.Path != "" {
 			// 	if err := handleRegroup(destFile, regroup, dryRun); err != nil {
@@ -164,16 +177,16 @@ func processFile(sourceDir, destName string, dest config.DestDir, filters []filt
 	})
 	if err != nil {
 		slog.Error("Error walking source directory", "sourceDir", sourceDir, "err", err)
-		return err
+		return s, err
 	}
 
 	if err := wp.Wait(); err != nil {
 		slog.Error("Processing completed with errors", "stats", s.String())
-		return err
+		return s, err
 	}
 
-	slog.Info("Processing completed successfully", "stats", s.String())
-	return nil
+	slog.Debug("Processing completed successfully", "stats", s.String())
+	return s, nil
 }
 
 // matchFile checks if a file matches all the rules in DestDir.
@@ -214,7 +227,7 @@ func destPath(sourceDir, destDir, filePath string, info fs.FileInfo, strat strat
 		return "", fmt.Errorf("computed destination path is outside of destination directory : computedPath=%s destDir=%s", destPath, destDir)
 	}
 
-	slog.Info("Creating directory", "path", destPath)
+	slog.Debug("Creating directory", "path", destPath)
 
 	destFile := filepath.Join(destPath, info.Name())
 	slog.Debug("Would move", "source", filepath.Dir(filePath), "dest", destFile)
@@ -223,16 +236,16 @@ func destPath(sourceDir, destDir, filePath string, info fs.FileInfo, strat strat
 }
 
 func handleRegroup(filePath string, regroup config.Regroup, dryRun bool) error {
-	slog.Info("Handling regroup", "file", filePath, "regroupPath", regroup.Path)
+	slog.Debug("Handling regroup", "file", filePath, "regroupPath", regroup.Path)
 	// Implementation of regrouping logic goes here
 	return nil
 }
 
 func moveFile(srcPath, destPath, onConflict string, dryRun bool) error {
-	slog.Info("Moving file", "source", srcPath, "dest", destPath)
+	slog.Debug("Moving file", "source", srcPath, "dest", destPath)
 
 	if dryRun {
-		slog.Info("Dry run enabled, not moving file", "source", srcPath, "dest", destPath)
+		slog.Debug("Dry run enabled, not moving file", "source", srcPath, "dest", destPath)
 		return nil
 	}
 
@@ -244,7 +257,7 @@ func moveFile(srcPath, destPath, onConflict string, dryRun bool) error {
 	if _, err := os.Stat(destPath); err == nil {
 		switch onConflict {
 		case "skip":
-			slog.Info("Destination file already exists, skipping", "dest", destPath)
+			slog.Debug("Destination file already exists, skipping", "dest", destPath)
 			return nil
 		case "overwrite":
 			if err := os.Remove(destPath); err != nil {
@@ -255,7 +268,7 @@ func moveFile(srcPath, destPath, onConflict string, dryRun bool) error {
 				slog.Error("Failed to compare files for equality", "source", srcPath, "dest", destPath, "err", err)
 				return err
 			} else if ok {
-				slog.Info("Source and destination files are identical, skipping move", "source", srcPath, "dest", destPath)
+				slog.Debug("Source and destination files are identical, skipping move", "source", srcPath, "dest", destPath)
 				return nil
 			}
 			destPath = fsutil.GetUniquePath(destPath)

@@ -15,8 +15,9 @@ type Regroup struct {
 type Config struct {
 	SourceDirs []string `yaml:"source_dirs"`
 	// GlobalStategy *strategy.Strategy `yaml:"global_strategy,omitempty"` // Default strategy if not specified in DestDir
-	DestDirs map[string]DestDir `yaml:"dest_dirs"` // Map destination name to DestDir
-	Regroup  `yaml:"regroup,omitempty"`
+	DestDirs   map[string]DestDir `yaml:"dest_dirs"` // Map destination name to DestDir
+	Regroup    `yaml:"regroup,omitempty"`
+	MaxWorkers int `yaml:"max_workers"` // Maximum number of concurrent workers
 }
 
 func LoadConfig(path string) (*Config, error) {

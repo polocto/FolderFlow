@@ -35,7 +35,6 @@ to quickly create a Cobra application.`,
 		if err := core.Classify(*conf, cfg.DryRun); err != nil {
 			slog.Error("An error occured while classing the documents", "error", err)
 		}
-		slog.Info("Classification finish")
 	},
 }
 
