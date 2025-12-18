@@ -4,3 +4,10 @@ ff
 test_data/
 !folderflow/
 .VSCodeCounter/
+.DS_Store
+.vscode/
+
+# Ignore environment files
+.env
+.env.local
+.env.*.local
