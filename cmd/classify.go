@@ -6,8 +6,8 @@ package cmd
 import (
 	"log/slog"
 
+	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
-	"github.com/polocto/FolderFlow/internal/core"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		if err := core.Classify(*conf, cfg.DryRun); err != nil {
+		if err := classify.Classify(*conf, cfg.DryRun); err != nil {
 			slog.Error("An error occured while classing the documents", "error", err)
 		}
 	},

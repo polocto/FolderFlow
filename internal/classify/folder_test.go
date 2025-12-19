@@ -1,4 +1,4 @@
-package core
+package classify
 
 import (
 	"path/filepath"
