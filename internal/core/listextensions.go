@@ -7,7 +7,13 @@ import (
 	"sort"
 )
 
-func ListAllFilesExtensions(dir string, dryRun bool, verbose bool) ([]string, error) {
+func ListAllFilesExtensions(dir string) ([]string, error) {
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		slog.Error("Directory does not exist", "dir", dir)
+		return nil, err
+	}
+
 	extMap := make(map[string]bool) // Use a map to track unique extensions
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {

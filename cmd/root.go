@@ -11,9 +11,10 @@ import (
 )
 
 type AppConfig struct {
-	Verbose bool
-	DryRun  bool
+	DryRun bool
 }
+
+var verbose bool
 
 var cfg AppConfig
 
@@ -26,7 +27,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		return logger.Init(cfg.Verbose)
+		return logger.Init(verbose)
 	},
 }
 
@@ -44,7 +45,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "enable verbose logging")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.DryRun, "dry-run", false, "dry run (no changes)")
 
 	// Cobra also supports local flags, which will only run

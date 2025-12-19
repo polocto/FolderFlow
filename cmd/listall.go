@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"log/slog"
-	"os"
 
 	"github.com/polocto/FolderFlow/internal/core"
 	"github.com/spf13/cobra"
@@ -28,21 +27,11 @@ to quickly create a Cobra application.`,
 			path = args[0]
 		}
 
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			if cfg.Verbose {
-				fmt.Printf("%s does not exist.", path)
-			}
-		}
-
-		extensions, err := core.ListAllFilesExtensions(path, cfg.DryRun, cfg.Verbose)
+		extensions, err := core.ListAllFilesExtensions(path)
 
 		if err != nil {
 			slog.Error("An error occured while listing extensions", "error", err)
 			return
-		}
-
-		if cfg.Verbose {
-			fmt.Printf("Found %d unique extensions in %s\n", len(extensions), path)
 		}
 
 		for _, ext := range extensions {
