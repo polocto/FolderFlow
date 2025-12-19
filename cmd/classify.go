@@ -4,17 +4,20 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"log/slog"
 
-	"github.com/polocto/FolderFlow/internal/list"
+	"github.com/polocto/FolderFlow/internal/classify"
+	"github.com/polocto/FolderFlow/internal/config"
 	"github.com/spf13/cobra"
 )
 
-// listallCmd represents the listall command
-var listallCmd = &cobra.Command{
-	Use:   "listall",
-	Short: "List all extensions found in the specify folder",
+var configFile string
+
+// classifyCmd represents the classify command
+var classifyCmd = &cobra.Command{
+	Use:     "classify",
+	Aliases: []string{"class"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -22,34 +25,29 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var path string = "."
-		if len(args) > 0 {
-			path = args[0]
-		}
-
-		extensions, err := list.ListAllFilesExtensions(path)
+		conf, err := config.LoadConfig(configFile)
 
 		if err != nil {
-			slog.Error("An error occured while listing extensions", "error", err)
+			slog.Error("An error occured while loading the config", "error", err)
 			return
 		}
 
-		for _, ext := range extensions {
-			fmt.Println(ext)
+		if err := classify.Classify(*conf, cfg.DryRun); err != nil {
+			slog.Error("An error occured while classing the documents", "error", err)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(listallCmd)
+	rootCmd.AddCommand(classifyCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// listallCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// classifyCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listallCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	classifyCmd.Flags().StringVarP(&configFile, "file", "f", "", "")
 }

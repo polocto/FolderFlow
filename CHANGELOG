@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Planned]
+### Added
+|Feature|Example Features|Benefit
+|:-|:-|:-|
+|Regrouping|Nested, virtual, tag-based|Dynamic, rule-based file views
+
 ## [Unreleased]
 
 ### Added
@@ -13,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README to explain the project and how to use it.
 - MIT license because we <3 open-source projects.
 - List all files extensions in a folder and subfolders
+- Classify document using dynamic filters and dynamic strategy so you can add your own pluggins
+    - Multi-source directory
+    - The basics filters added are :
+        - filter files based on their extensions
+        - filter files based on a regex pattern
+    - The basics strategies added are :
+        - classify files based on their last modified date
+        - classify files based on the src hierachy folder
+    - An option for parallelism to speedup the process
+    - Stats on files a processing them
+    - Conflict are handle in 3 different ways (skip, overwrite or rename)
+        - default comportement of rename is ti check if the file is the same before moving it, if it is, it will skip it
+    - Dry-run is also possible showing you the stats
 
 
 

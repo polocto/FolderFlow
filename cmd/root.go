@@ -6,13 +6,15 @@ package cmd
 import (
 	"os"
 
+	"github.com/polocto/FolderFlow/internal/logger"
 	"github.com/spf13/cobra"
 )
 
 type AppConfig struct {
-	Verbose bool
-	DryRun  bool
+	DryRun bool
 }
+
+var verbose bool
 
 var cfg AppConfig
 
@@ -24,6 +26,9 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return logger.Init(verbose)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -40,7 +45,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().BoolVar(&cfg.Verbose, "verbose", false, "enable verbose logging")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.DryRun, "dry-run", false, "dry run (no changes)")
 
 	// Cobra also supports local flags, which will only run

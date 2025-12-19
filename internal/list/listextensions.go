@@ -1,15 +1,19 @@
-package core
+package list
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sort"
-
-	"github.com/polocto/FolderFlow/internal/logger"
 )
 
-func ListAllFilesExtensions(dir string, dryRun bool, verbose bool) ([]string, error) {
+func ListAllFilesExtensions(dir string) ([]string, error) {
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		slog.Error("Directory does not exist", "dir", dir)
+		return nil, err
+	}
+
 	extMap := make(map[string]bool) // Use a map to track unique extensions
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -25,10 +29,7 @@ func ListAllFilesExtensions(dir string, dryRun bool, verbose bool) ([]string, er
 		if ext != "" { // Ignore files without extensions
 			extMap[ext] = true
 		} else {
-			logger.Warn(path, "has no extension")
-			if verbose {
-				fmt.Printf("Warn : %s has no extension\n", path)
-			}
+			slog.Warn("File has no extension", "path", path)
 		}
 		return nil
 	})
