@@ -2,6 +2,7 @@ folderflow
 ff
 *.log
 test_data/
+testdata/
 !folderflow/
 .VSCodeCounter/
 .DS_Store
