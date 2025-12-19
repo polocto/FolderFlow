@@ -2,13 +2,14 @@ package strategy
 
 import (
 	"io/fs"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// mockFileInfo crée un fs.FileInfo mock pour les tests
+// mockFileInfo creates a mock fs.FileInfo for testing
 type mockFileInfo struct {
 	isDir bool
 	name  string
@@ -29,51 +30,51 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 		srcDir    string
 		destDir   string
 		filePath  string
-		info      fs.FileInfo // Utiliser un fs.FileInfo mock
+		info      fs.FileInfo
 		expected  string
 		shouldErr bool
 	}{
 		{
 			name:      "Basic relative path",
-			srcDir:    "/home/polocto/Document/",
-			destDir:   "/srv/backup/",
-			filePath:  "/home/polocto/Document/Important/Famille/fichier.txt",
+			srcDir:    filepath.Join("home", "polocto", "Document"),
+			destDir:   filepath.Join("srv", "backup"),
+			filePath:  filepath.Join("home", "polocto", "Document", "Important", "Famille", "fichier.txt"),
 			info:      mockFileInfo{isDir: false, name: "fichier.txt"},
-			expected:  "/srv/backup/Important/Famille",
+			expected:  filepath.Join("srv", "backup", "Important", "Famille"),
 			shouldErr: false,
 		},
 		{
 			name:      "File in root of srcDir",
-			srcDir:    "/home/polocto/Document/",
-			destDir:   "/srv/backup/",
-			filePath:  "/home/polocto/Document/fichier.txt",
+			srcDir:    filepath.Join("home", "polocto", "Document"),
+			destDir:   filepath.Join("srv", "backup"),
+			filePath:  filepath.Join("home", "polocto", "Document", "fichier.txt"),
 			info:      mockFileInfo{isDir: false, name: "fichier.txt"},
-			expected:  "/srv/backup",
+			expected:  filepath.Join("srv", "backup"),
 			shouldErr: false,
 		},
 		{
 			name:      "Path with spaces",
-			srcDir:    "/home/polocto/My Documents/",
-			destDir:   "/srv/backup/",
-			filePath:  "/home/polocto/My Documents/Important Project/File with spaces.txt",
+			srcDir:    filepath.Join("home", "polocto", "My Documents"),
+			destDir:   filepath.Join("srv", "backup"),
+			filePath:  filepath.Join("home", "polocto", "My Documents", "Important Project", "File with spaces.txt"),
 			info:      mockFileInfo{isDir: false, name: "File with spaces.txt"},
-			expected:  "/srv/backup/Important Project",
+			expected:  filepath.Join("srv", "backup", "Important Project"),
 			shouldErr: false,
 		},
 		{
 			name:      "Invalid path (not a subdirectory)",
-			srcDir:    "/home/polocto/Document/",
-			destDir:   "/srv/backup/",
-			filePath:  "/other/path/file.txt",
+			srcDir:    filepath.Join("home", "polocto", "Document"),
+			destDir:   filepath.Join("srv", "backup"),
+			filePath:  filepath.Join("other", "path", "file.txt"),
 			info:      mockFileInfo{isDir: false, name: "file.txt"},
 			expected:  "",
 			shouldErr: true,
 		},
 		{
 			name:      "Directory instead of file",
-			srcDir:    "/home/polocto/Document/",
-			destDir:   "/srv/backup/",
-			filePath:  "/home/polocto/Document/Folder/",
+			srcDir:    filepath.Join("home", "polocto", "Document"),
+			destDir:   filepath.Join("srv", "backup"),
+			filePath:  filepath.Join("home", "polocto", "Document", "Folder"),
 			info:      mockFileInfo{isDir: true, name: "Folder"},
 			expected:  "",
 			shouldErr: true,
@@ -105,19 +106,19 @@ func TestDirChainStrategy_LoadConfig(t *testing.T) {
 }
 
 func TestDirChainStrategy_Registration(t *testing.T) {
-	// Sauvegarder le registre original
+	// Save the original registry
 	originalRegistry := strategyRegistry
 	defer func() { strategyRegistry = originalRegistry }()
 
-	// Réinitialiser le registre
+	// Reset the registry
 	strategyRegistry = make(map[string]func() Strategy)
 
-	// Réenregistrer la stratégie (comme dans init())
+	// Re-register the strategy (as in init())
 	RegisterStrategy("dirchain", func() Strategy {
 		return &DirChainStrategy{}
 	})
 
-	// Vérifier que la stratégie est bien enregistrée
+	// Verify that the strategy is registered correctly
 	strat, err := NewStrategy("dirchain")
 	assert.NoError(t, err, "NewStrategy should not return an error")
 	assert.Equal(t, "dirchain", strat.Selector(), "Strategy selector should be 'dirchain'")
