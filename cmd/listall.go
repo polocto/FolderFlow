@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/polocto/FolderFlow/internal/core"
+	"github.com/polocto/FolderFlow/internal/list"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ to quickly create a Cobra application.`,
 			path = args[0]
 		}
 
-		extensions, err := core.ListAllFilesExtensions(path)
+		extensions, err := list.ListAllFilesExtensions(path)
 
 		if err != nil {
 			slog.Error("An error occured while listing extensions", "error", err)
