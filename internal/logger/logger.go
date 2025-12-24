@@ -44,8 +44,11 @@ func (h *MultiHandler) WithGroup(name string) slog.Handler {
 	return &MultiHandler{handlers: hs}
 }
 
-func Init(verbose bool) error {
-	// File handler (always debug)
+func Init(verbose, debug bool) error {
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		return err
+	}
+
 	file, err := os.OpenFile(
 		"logs/folderflow.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
@@ -55,7 +58,7 @@ func Init(verbose bool) error {
 		return err
 	}
 	var leveler slog.Leveler = slog.LevelInfo
-	if os.Getenv("DEBUG") != "" {
+	if debug {
 		leveler = slog.LevelDebug
 	}
 

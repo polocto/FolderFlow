@@ -100,7 +100,7 @@ func TestInit(t *testing.T) {
 	defer os.RemoveAll(logDir)
 
 	// Test verbose mode
-	err := Init(true)
+	err := Init(true, false)
 	require.NoError(t, err)
 
 	// Check if the log file was created
@@ -108,7 +108,7 @@ func TestInit(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test non-verbose mode
-	err = Init(false)
+	err = Init(false, false)
 	require.NoError(t, err)
 
 	// Check if the log file was created
@@ -125,7 +125,7 @@ func TestLoggerOutput(t *testing.T) {
 	defer os.RemoveAll(logDir)
 
 	// Initialize logger
-	err := Init(true)
+	err := Init(true, false)
 	require.NoError(t, err)
 
 	// Log a message

@@ -15,6 +15,7 @@ type AppConfig struct {
 }
 
 var verbose bool
+var debug bool
 
 var cfg AppConfig
 
@@ -27,7 +28,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		return logger.Init(verbose)
+		return logger.Init(verbose, debug || os.Getenv("DEBUG") != "")
 	},
 }
 
@@ -47,6 +48,7 @@ func init() {
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.DryRun, "dry-run", false, "dry run (no changes)")
+	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "enable debugging logs")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
