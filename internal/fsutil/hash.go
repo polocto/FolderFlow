@@ -5,22 +5,14 @@ import (
 	"crypto/sha256"
 	"io"
 	"os"
+
+	"github.com/polocto/FolderFlow/internal/stats"
 )
 
-// Optional: use hash for verification or caching
-func FilesEqualHash(path1, path2 string) (bool, error) {
-	hash1, err := fileHash(path1)
-	if err != nil {
-		return false, err
+func FileHash(path string, s *stats.Stats) ([]byte, error) {
+	if s != nil {
+		defer s.Time(&s.Timing.Hash)()
 	}
-	hash2, err := fileHash(path2)
-	if err != nil {
-		return false, err
-	}
-	return bytes.Equal(hash1, hash2), nil
-}
-
-func fileHash(path string) ([]byte, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -30,6 +22,19 @@ func fileHash(path string) ([]byte, error) {
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
 		return nil, err
+	} else if s != nil {
+		s.HashComputed()
 	}
 	return h.Sum(nil), nil
+}
+
+func HashEqual(f1, f2 []byte, s *stats.Stats) bool {
+	if !bytes.Equal(f1, f2) {
+		return false
+	}
+
+	if s != nil {
+		s.HashVerified()
+	}
+	return true
 }

@@ -1,8 +1,11 @@
 package fsutil
 
 import (
+	"bytes"
 	"path/filepath"
 	"testing"
+
+	"github.com/polocto/FolderFlow/internal/stats"
 )
 
 func TestFilesEqualHash_SameContent(t *testing.T) {
@@ -12,11 +15,15 @@ func TestFilesEqualHash_SameContent(t *testing.T) {
 	f1 := writeTempFile(t, dir, "file1.txt", content)
 	f2 := writeTempFile(t, dir, "file2.txt", content)
 
-	equal, err := FilesEqualHash(f1, f2)
+	hash1, err := FileHash(f1, &stats.Stats{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !equal {
+	hash2, err := FileHash(f2, &stats.Stats{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !bytes.Equal(hash1, hash2) {
 		t.Fatalf("expected files to be equal")
 	}
 }
@@ -27,11 +34,16 @@ func TestFilesEqualHash_DifferentContent(t *testing.T) {
 	f1 := writeTempFile(t, dir, "file1.txt", []byte("hello world"))
 	f2 := writeTempFile(t, dir, "file2.txt", []byte("hello WORLD"))
 
-	equal, err := FilesEqualHash(f1, f2)
+	hash1, err := FileHash(f1, &stats.Stats{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if equal {
+	hash2, err := FileHash(f2, &stats.Stats{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if bytes.Equal(hash1, hash2) {
 		t.Fatalf("expected files to be different")
 	}
 }
@@ -42,11 +54,15 @@ func TestFilesEqualHash_EmptyFiles(t *testing.T) {
 	f1 := writeTempFile(t, dir, "file1.txt", []byte{})
 	f2 := writeTempFile(t, dir, "file2.txt", []byte{})
 
-	equal, err := FilesEqualHash(f1, f2)
+	hash1, err := FileHash(f1, &stats.Stats{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !equal {
+	hash2, err := FileHash(f2, &stats.Stats{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !bytes.Equal(hash1, hash2) {
 		t.Fatalf("expected empty files to be equal")
 	}
 }
@@ -54,10 +70,9 @@ func TestFilesEqualHash_EmptyFiles(t *testing.T) {
 func TestFilesEqualHash_NonExistentFile(t *testing.T) {
 	dir := t.TempDir()
 
-	f1 := writeTempFile(t, dir, "file1.txt", []byte("data"))
-	f2 := filepath.Join(dir, "missing.txt")
+	f1 := filepath.Join(dir, "missing.txt")
 
-	_, err := FilesEqualHash(f1, f2)
+	_, err := FileHash(f1, &stats.Stats{})
 	if err == nil {
 		t.Fatalf("expected error for missing file, got nil")
 	}
@@ -75,11 +90,16 @@ func TestFilesEqualHash_LargeFile(t *testing.T) {
 	f1 := writeTempFile(t, dir, "file1.bin", large)
 	f2 := writeTempFile(t, dir, "file2.bin", large)
 
-	equal, err := FilesEqualHash(f1, f2)
+	hash1, err := FileHash(f1, &stats.Stats{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !equal {
+	hash2, err := FileHash(f2, &stats.Stats{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !bytes.Equal(hash1, hash2) {
 		t.Fatalf("expected large files to be equal")
 	}
 }

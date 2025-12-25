@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // CustomFilter is an example custom filter.
@@ -21,7 +23,6 @@ func (f *ExtensionFilter) Match(path string, info fs.FileInfo) (bool, error) {
 			return true, nil
 		}
 	}
-	slog.Debug("No extensions matched the file's one", "filter", f.Extensions, "path", path, "file's extension", ext)
 	return false, nil
 }
 
@@ -30,12 +31,25 @@ func (f *ExtensionFilter) Selector() string {
 }
 
 func (f *ExtensionFilter) LoadConfig(config map[string]interface{}) error {
-	if exts, ok := config["extensions"].([]string); ok {
-		f.Extensions = exts
-	} else {
-		slog.Error("Failed to load extensions", "config", config)
+	var cfg struct {
+		Extensions []string `yaml:"extensions"`
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return err
+	}
+
+	if len(cfg.Extensions) == 0 {
 		return fmt.Errorf("invalid or missing 'extensions' config")
 	}
+
+	f.Extensions = cfg.Extensions
+
 	slog.Debug("Loading extensions was successful", "extensions", f.Extensions)
 	return nil
 }
