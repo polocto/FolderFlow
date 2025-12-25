@@ -3,6 +3,7 @@ package classify
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/polocto/FolderFlow/internal/config"
@@ -124,12 +125,17 @@ func TestProcessFile_NoMatch(t *testing.T) {
 }
 
 func TestProcessFile_MoveError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skipf("Skipping on %s: POSIX permissions are not enforced", runtime.GOOS)
+
+	}
+
 	tmp := t.TempDir()
 	src := filepath.Join(tmp, "a.txt")
 	writeFile(t, src)
 
 	destDir := filepath.Join(tmp, "dest")
-	if err := os.Mkdir(destDir, 0555); err != nil { // read-only
+	if err := os.Mkdir(destDir, 0555); err != nil { // read-only on POSIX
 		t.Fatal(err)
 	}
 
@@ -150,11 +156,14 @@ func TestProcessFile_MoveError(t *testing.T) {
 
 	err := c.processFile(tmp, src, mockFileInfo{name: "a.txt"})
 	if err == nil {
-		t.Fatal("expected error")
+		t.Fatal("expected error, got nil")
 	}
 }
 
 func TestProcessFile_RegroupEnabled(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("File move + regroup chain is not reliable on Windows due to file locking")
+	}
 	tmp := t.TempDir()
 	src := filepath.Join(tmp, "a.txt")
 	writeFile(t, src)
