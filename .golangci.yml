@@ -9,14 +9,17 @@ linters:
     - staticcheck
     - ineffassign
     - errcheck
-    - gosimple
-    - unused
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-
-# Remplacer exclude-rules par new syntax
-exclude:
-  - '.*_test.go:.*'    # Exclut les erreurs dans les fichiers *_test.go
+    - revive
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+  exclusions:
+    paths:
+      - '\\*_test.go'
