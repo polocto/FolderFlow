@@ -3,6 +3,7 @@ package fsutil
 import (
 	"crypto/sha256"
 	"io"
+	"log/slog"
 	"os"
 
 	"github.com/polocto/FolderFlow/internal/stats"
@@ -48,7 +49,9 @@ func CopyFileAtomic(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer func() {
+		_ = in.Close()
+	}()
 
 	tmp := dst + ".tmp"
 
@@ -58,24 +61,48 @@ func CopyFileAtomic(src, dst string) error {
 	}
 
 	if _, err := io.Copy(out, in); err != nil {
-		out.Close()
-		os.Remove(tmp)
+		_ = out.Close()
+		if rmErr := os.Remove(tmp); rmErr != nil {
+			slog.Warn(
+				"failed to delete temp file after copy failure",
+				"path", tmp,
+				"error", rmErr,
+			)
+		}
 		return err
 	}
 
 	if err := out.Sync(); err != nil {
-		out.Close()
-		os.Remove(tmp)
+		_ = out.Close()
+		if rmErr := os.Remove(tmp); rmErr != nil {
+			slog.Warn(
+				"failed to delete temp file after sync failure",
+				"path", tmp,
+				"error", rmErr,
+			)
+		}
 		return err
 	}
 
 	if err := out.Close(); err != nil {
-		os.Remove(tmp)
+		if rmErr := os.Remove(tmp); rmErr != nil {
+			slog.Warn(
+				"failed to delete temp file after close failure",
+				"path", tmp,
+				"error", rmErr,
+			)
+		}
 		return err
 	}
 
 	if err := ReplaceFile(tmp, dst); err != nil {
-		_ = os.Remove(tmp)
+		if rmErr := os.Remove(tmp); rmErr != nil {
+			slog.Warn(
+				"failed to delete temp file after replace failure",
+				"path", tmp,
+				"error", rmErr,
+			)
+		}
 		return err
 	}
 

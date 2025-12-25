@@ -42,7 +42,7 @@ func destPath(sourceDir, destDir, filePath string, info fs.FileInfo, strat strat
 }
 
 func resolveConflict(srcPath, destPath, onConflict string) (string, MoveAction, error) {
-	action := MoveSkipped
+	var action MoveAction
 	switch onConflict {
 	case "skip":
 		action = MoveSkipped

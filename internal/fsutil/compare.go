@@ -28,13 +28,17 @@ func FilesEqual(path1, path2 string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer f1.Close()
+	defer func() {
+		_ = f1.Close()
+	}()
 
 	f2, err := os.Open(path2)
 	if err != nil {
 		return false, err
 	}
-	defer f2.Close()
+	defer func() {
+		_ = f2.Close()
+	}()
 
 	// Compare chunks
 	const chunkSize = 64 * 1024 // 64 KB
