@@ -44,9 +44,9 @@ func (h *MultiHandler) WithGroup(name string) slog.Handler {
 	return &MultiHandler{handlers: hs}
 }
 
-func Init(verbose, debug bool) error {
+func Init(verbose, debug bool) (func() error, error) {
 	if err := os.MkdirAll("logs", 0755); err != nil {
-		return err
+		return nil, err
 	}
 
 	file, err := os.OpenFile(
@@ -55,7 +55,7 @@ func Init(verbose, debug bool) error {
 		0644,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var leveler slog.Leveler = slog.LevelInfo
 	if debug {
@@ -83,5 +83,5 @@ func Init(verbose, debug bool) error {
 	}
 
 	slog.SetDefault(slog.New(handler))
-	return nil
+	return file.Close, nil
 }

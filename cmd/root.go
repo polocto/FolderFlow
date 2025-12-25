@@ -4,6 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/polocto/FolderFlow/internal/logger"
@@ -19,6 +20,8 @@ var debug bool
 
 var cfg AppConfig
 
+var closeLogger func() error
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "FolderFlow",
@@ -28,17 +31,25 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		return logger.Init(verbose, debug || os.Getenv("DEBUG") != "")
+		var err error
+		closeLogger, err = logger.Init(verbose, debug || os.Getenv("DEBUG") != "")
+		return err
 	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+func Execute() error {
+	defer func() {
+		if closeLogger != nil {
+			_ = closeLogger()
+		}
+	}()
+	if err := rootCmd.Execute(); err != nil {
+		slog.Error("command execution failed", "error", err)
+		return err
 	}
+	return nil
 }
 
 func init() {

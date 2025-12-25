@@ -17,5 +17,7 @@ func main() {
 			panic("Error loading .env file")
 		}
 	}
-	cmd.Execute()
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
