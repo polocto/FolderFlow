@@ -18,7 +18,9 @@ func FileHash(path string, s *stats.Stats) ([]byte, error) {
 		return nil, err
 	}
 	defer func() {
-		_ = f.Close()
+		if cerr := f.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
 	}()
 
 	h := sha256.New()

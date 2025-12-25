@@ -163,24 +163,25 @@ func (c *Classifier) processFile(sourceDir, filePath string, info fs.FileInfo) e
 		}
 
 		// Move the file using the destination
-		if action, err := moveFile(filePath, destFile, dest.OnConflict, c.dryRun); err != nil {
+		var action MoveAction
+		if action, err = moveFile(filePath, destFile, dest.OnConflict, c.dryRun); err != nil {
 			c.stats.Error(err)
 			return err
-		} else {
-			// Succès : moved
-			switch action {
-			case MoveCopy:
-				c.stats.FileCopied(info.Size())
-			case MoveRenamed:
-				c.stats.FileRenamed(info.Size())
-			case MoveOverwritten:
-				c.stats.FileOverwrtitten(info.Size())
-			case MoveSkipped:
-				c.stats.FileSkipped()
-			default:
-				c.stats.FileMoved(info.Size())
-			}
 		}
+		// Succès : moved
+		switch action {
+		case MoveCopy:
+			c.stats.FileCopied(info.Size())
+		case MoveRenamed:
+			c.stats.FileRenamed(info.Size())
+		case MoveOverwritten:
+			c.stats.FileOverwrtitten(info.Size())
+		case MoveSkipped:
+			c.stats.FileSkipped()
+		default:
+			c.stats.FileMoved(info.Size())
+		}
+
 		// Handle regrouping
 		if c.cfg.Regroup == nil || c.cfg.Regroup.Path == "" {
 			return nil

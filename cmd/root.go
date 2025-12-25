@@ -42,7 +42,9 @@ var rootCmd = &cobra.Command{
 func Execute() error {
 	defer func() {
 		if closeLogger != nil {
-			_ = closeLogger()
+			if cerr := closeLogger(); cerr != nil {
+				slog.Warn("failed to close logger", "error", cerr)
+			}
 		}
 	}()
 	if err := rootCmd.Execute(); err != nil {

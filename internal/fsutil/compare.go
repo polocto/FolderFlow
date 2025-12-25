@@ -29,7 +29,9 @@ func FilesEqual(path1, path2 string) (bool, error) {
 		return false, err
 	}
 	defer func() {
-		_ = f1.Close()
+		if cerr := f1.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
 	}()
 
 	f2, err := os.Open(path2)
@@ -37,7 +39,9 @@ func FilesEqual(path1, path2 string) (bool, error) {
 		return false, err
 	}
 	defer func() {
-		_ = f2.Close()
+		if cerr := f2.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
 	}()
 
 	// Compare chunks

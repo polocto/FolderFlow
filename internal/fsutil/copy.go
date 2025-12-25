@@ -18,7 +18,9 @@ func CopyFile(src, dst string, s *stats.Stats) ([]byte, error) {
 		return nil, err
 	}
 	defer func() {
-		_ = in.Close()
+		if cerr := in.Close(); err == nil && cerr != nil {
+			err = cerr
+		}
 	}()
 
 	out, err := os.Create(dst)
@@ -26,7 +28,9 @@ func CopyFile(src, dst string, s *stats.Stats) ([]byte, error) {
 		return nil, err
 	}
 	defer func() {
-		_ = out.Close()
+		if cerr := out.Close(); err == nil && cerr != nil {
+			err = cerr
+		}
 	}()
 
 	hasher := sha256.New()
@@ -54,7 +58,9 @@ func CopyFileAtomic(src, dst string) error {
 		return err
 	}
 	defer func() {
-		_ = in.Close()
+		if cerr := in.Close(); err == nil && cerr != nil {
+			err = cerr
+		}
 	}()
 
 	tmp := dst + ".tmp"
@@ -65,7 +71,13 @@ func CopyFileAtomic(src, dst string) error {
 	}
 
 	if _, err := io.Copy(out, in); err != nil {
-		_ = out.Close()
+		if cerr := out.Close(); cerr != nil {
+			slog.Warn(
+				"failed to close file after copy failure",
+				"path", tmp,
+				"error", cerr,
+			)
+		}
 		if rmErr := os.Remove(tmp); rmErr != nil {
 			slog.Warn(
 				"failed to delete temp file after copy failure",
@@ -77,7 +89,13 @@ func CopyFileAtomic(src, dst string) error {
 	}
 
 	if err := out.Sync(); err != nil {
-		_ = out.Close()
+		if cerr := out.Close(); cerr != nil {
+			slog.Warn(
+				"failed to close file after sync failure",
+				"path", tmp,
+				"error", cerr,
+			)
+		}
 		if rmErr := os.Remove(tmp); rmErr != nil {
 			slog.Warn(
 				"failed to delete temp file after sync failure",
