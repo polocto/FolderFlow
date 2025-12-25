@@ -52,11 +52,11 @@ func TestVerboseHandler_Handle(t *testing.T) {
 	require.NoError(t, err)
 
 	// Close the write end of the pipe
-	w.Close()
+	require.NoError(t, w.Close())
 
 	// Read the output
 	var buf bytes.Buffer
-	buf.ReadFrom(r)
+	_, _ = buf.ReadFrom(r)
 	output := buf.String()
 
 	// Check if the output contains the expected message and attributes
@@ -107,11 +107,11 @@ func TestVerboseHandler_LogLevel(t *testing.T) {
 	logger.Error("error message")
 
 	// Close the write end of the pipe
-	w.Close()
+	require.NoError(t, w.Close())
 
 	// Read the output
 	var buf bytes.Buffer
-	buf.ReadFrom(r)
+	_, _ = buf.ReadFrom(r)
 	output := buf.String()
 
 	// Check if the output contains the expected messages

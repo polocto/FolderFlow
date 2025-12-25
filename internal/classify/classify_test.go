@@ -9,6 +9,7 @@ import (
 	"github.com/polocto/FolderFlow/internal/config"
 	"github.com/polocto/FolderFlow/internal/stats"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
+	"github.com/stretchr/testify/require"
 )
 
 func newClassifier(cfg config.Config, dryRun bool) *Classifier {
@@ -89,8 +90,8 @@ func TestProcessSourceDir_WalkError(t *testing.T) {
 
 func TestProcessSourceDir_SkipDirs(t *testing.T) {
 	tmp := t.TempDir()
-	os.Mkdir(filepath.Join(tmp, ".git"), 0755)
-	os.Mkdir(filepath.Join(tmp, "node_modules"), 0755)
+	require.NoError(t, os.Mkdir(filepath.Join(tmp, ".git"), 0755))
+	require.NoError(t, os.Mkdir(filepath.Join(tmp, "node_modules"), 0755))
 
 	c := newClassifier(config.Config{
 		MaxWorkers: 1,

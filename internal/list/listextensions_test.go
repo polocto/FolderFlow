@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestListAllFilesExtensions(t *testing.T) {
@@ -17,7 +19,7 @@ func TestListAllFilesExtensions(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		f.Close()
+		require.NoError(t, f.Close())
 	}
 
 	// Call the function
@@ -55,7 +57,7 @@ func TestListAllFilesExtensions_NoExtensions(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		f.Close()
+		require.NoError(t, f.Close())
 	}
 
 	// Call the function

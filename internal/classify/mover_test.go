@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 //
@@ -169,8 +171,8 @@ func TestResolveConflict_Rename_Identical(t *testing.T) {
 	src := filepath.Join(tmp, "a.txt")
 	dst := filepath.Join(tmp, "b.txt")
 
-	os.WriteFile(src, []byte("same"), 0644)
-	os.WriteFile(dst, []byte("same"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("same"), 0644))
+	require.NoError(t, os.WriteFile(dst, []byte("same"), 0644))
 
 	newDst, action, err := resolveConflict(src, dst, "rename")
 	if err != nil {

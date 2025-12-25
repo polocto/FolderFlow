@@ -4,13 +4,15 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestExtensionFilter(t *testing.T) {
 	f := &ExtensionFilter{Extensions: []string{".txt"}}
 
 	file := filepath.Join(t.TempDir(), "a.txt")
-	os.WriteFile(file, []byte("x"), 0644)
+	require.NoError(t, os.WriteFile(file, []byte("x"), 0644))
 	info, _ := os.Stat(file)
 
 	ok, err := f.Match(file, info)

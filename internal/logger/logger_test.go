@@ -97,7 +97,7 @@ func TestInit(t *testing.T) {
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		t.Fatalf("Failed to create log directory: %v", err)
 	}
-	defer os.RemoveAll(logDir)
+	defer require.NoError(t, os.RemoveAll(logDir))
 
 	// Test verbose mode
 	err := Init(true, false)
@@ -122,7 +122,7 @@ func TestLoggerOutput(t *testing.T) {
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		t.Fatalf("Failed to create log directory: %v", err)
 	}
-	defer os.RemoveAll(logDir)
+	defer require.NoError(t, os.RemoveAll(logDir))
 
 	// Initialize logger
 	err := Init(true, false)
