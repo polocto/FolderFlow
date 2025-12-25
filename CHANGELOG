@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+## [0.1.0] - 2025-12-25
+
+### Added
+
 - Initial project documentation:
     - This CHANGELOG file to track notable changes.
     - A README explaining the project goals and usage.
@@ -51,3 +59,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
             - Symlink
             - Copy
         - The output directory must not overlap with any source directory to prevent conflicts.
+
