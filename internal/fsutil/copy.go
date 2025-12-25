@@ -17,13 +17,17 @@ func CopyFile(src, dst string, s *stats.Stats) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer in.Close()
+	defer func() {
+		_ = in.Close()
+	}()
 
 	out, err := os.Create(dst)
 	if err != nil {
 		return nil, err
 	}
-	defer out.Close()
+	defer func() {
+		_ = out.Close()
+	}()
 
 	hasher := sha256.New()
 
