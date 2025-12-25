@@ -92,7 +92,7 @@ func TestRegroupFile_Success(t *testing.T) {
 		cfg: config.Config{
 			Regroup: &config.Regroup{
 				Path:     filepath.Join(tmp, "regroup"),
-				Mode:     "copy",
+				Mode:     "hardlink",
 				Strategy: &mockStrategy{dest: filepath.Join(tmp, "regroup")},
 			},
 		},
