@@ -13,10 +13,26 @@ func writeTestFile(t *testing.T, path, content string) {
 	t.Helper()
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		t.Fatalf("mkdir failed: %v", err)
+		t.Fatal(err)
 	}
-	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-		t.Fatalf("write failed: %v", err)
+
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := f.Write([]byte(content)); err != nil {
+		f.Close()
+		t.Fatal(err)
+	}
+
+	if err := f.Sync(); err != nil {
+		f.Close()
+		t.Fatal(err)
+	}
+
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
 	}
 }
 
