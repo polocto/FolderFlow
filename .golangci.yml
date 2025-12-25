@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   timeout: 5m
 
@@ -15,8 +17,6 @@ linters-settings:
     check-type-assertions: true
     check-blank: true
 
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
+# Remplacer exclude-rules par new syntax
+exclude:
+  - '.*_test.go:.*'    # Exclut les erreurs dans les fichiers *_test.go
