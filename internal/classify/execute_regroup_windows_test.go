@@ -22,12 +22,12 @@ func writeTestFile(t *testing.T, path, content string) {
 	}
 
 	if _, err := f.Write([]byte(content)); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatal(err)
 	}
 
 	if err := f.Sync(); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatal(err)
 	}
 
