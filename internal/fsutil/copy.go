@@ -74,5 +74,10 @@ func CopyFileAtomic(src, dst string) error {
 		return err
 	}
 
-	return ReplaceFile(src, dst)
+	if err := ReplaceFile(tmp, dst); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+
+	return nil
 }
