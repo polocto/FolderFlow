@@ -296,8 +296,8 @@ func TestMoveFile_ConflictSkip(t *testing.T) {
 	src := filepath.Join(tmp, "src.txt")
 	dst := filepath.Join(tmp, "dst.txt")
 
-	os.WriteFile(src, []byte("A"), 0644)
-	os.WriteFile(dst, []byte("B"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("A"), 0644))
+	require.NoError(t, os.WriteFile(dst, []byte("B"), 0644))
 
 	action, err := moveFile(src, dst, "skip", false)
 	if err != nil {
@@ -314,7 +314,7 @@ func TestMoveFile_DryRun(t *testing.T) {
 	src := filepath.Join(tmp, "src.txt")
 	dst := filepath.Join(tmp, "dst.txt")
 
-	os.WriteFile(src, []byte("data"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("data"), 0644))
 
 	action, err := moveFile(src, dst, "skip", true)
 	if err != nil {
@@ -334,8 +334,8 @@ func TestMoveFile_Overwrite(t *testing.T) {
 	src := filepath.Join(dir, "src.txt")
 	dst := filepath.Join(dir, "dst.txt")
 
-	os.WriteFile(src, []byte("src"), 0644)
-	os.WriteFile(dst, []byte("dst"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("src"), 0644))
+	require.NoError(t, os.WriteFile(dst, []byte("dst"), 0644))
 
 	if _, err := moveFile(src, dst, "overwrite", false); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -368,7 +368,7 @@ func TestExecuteMove_Success(t *testing.T) {
 	src := filepath.Join(tmp, "src.txt")
 	dst := filepath.Join(tmp, "sub/dst.txt")
 
-	os.WriteFile(src, []byte("hello"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("hello"), 0644))
 
 	if err := executeMove(src, dst); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -384,8 +384,8 @@ func TestMoveFile_Skip(t *testing.T) {
 	src := filepath.Join(dir, "src.txt")
 	dst := filepath.Join(dir, "dst.txt")
 
-	os.WriteFile(src, []byte("src"), 0644)
-	os.WriteFile(dst, []byte("dst"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("src"), 0644))
+	require.NoError(t, os.WriteFile(dst, []byte("dst"), 0644))
 
 	if _, err := moveFile(src, dst, "overwrite", true); err != nil {
 		t.Fatalf("unexpected error: %v", err)
