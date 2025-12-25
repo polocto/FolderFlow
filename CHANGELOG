@@ -7,31 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Planned]
 ### Added
-|Feature|Example Features|Benefit
-|:-|:-|:-|
-|Regrouping|Nested, virtual, tag-based|Dynamic, rule-based file views
+- Ability to skip specific folders and files during classification
 
 ## [Unreleased]
 
 ### Added
 
-- This CHANGELOG file to hopefully keep a track of all features that will be added.
-- README to explain the project and how to use it.
-- MIT license because we <3 open-source projects.
-- List all files extensions in a folder and subfolders
-- Classify document using dynamic filters and dynamic strategy so you can add your own pluggins
-    - Multi-source directory
-    - The basics filters added are :
-        - filter files based on their extensions
-        - filter files based on a regex pattern
-    - The basics strategies added are :
-        - classify files based on their last modified date
-        - classify files based on the src hierachy folder
-    - An option for parallelism to speedup the process
-    - Stats on files a processing them
-    - Conflict are handle in 3 different ways (skip, overwrite or rename)
-        - default comportement of rename is ti check if the file is the same before moving it, if it is, it will skip it
-    - Dry-run is also possible showing you the stats
+- Initial project documentation:
+    - This CHANGELOG file to track notable changes.
+    - A README explaining the project goals and usage.
+    - MIT license.
 
+- Document classification using **dynamic, plugin-based filters and strategies**, allowing custom extensions.
+    - Support for multiple source directories.
 
+    - **Built-in filters**
+        - Filter files by extension.
+        - Filter files using regex patterns.
 
+    - **Built-in classification strategies**
+        - Classify files based on last modification date.
+        - Classify files based on source directory hierarchy.
+
+    - Optional parallel execution to improve performance.
+    - Execution statistics for classification runs.
+
+    - **File conflict handling strategies**
+        - Skip existing files.
+        - Overwrite existing files.
+        - Rename files on conflict.
+            - The default rename behavior checks whether the destination file is identical; if so, it is skipped.
+            - When using overwrite mode, if multiple files resolve to the same destination path, only the last processed file is preserved.
+
+    - **Dry-run mode**
+        - Simulates the classification process without modifying the filesystem.
+        - Displays expected execution statistics.
+        - Does not resolve conflicts between files that would be moved.
+
+    - **Regrouping file views**
+        - Strategy-based regrouping.
+        - Output modes:
+            - Hardlink
+            - Symlink
+            - Copy
+        - The output directory must not overlap with any source directory to prevent conflicts.

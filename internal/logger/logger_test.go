@@ -97,19 +97,25 @@ func TestInit(t *testing.T) {
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		t.Fatalf("Failed to create log directory: %v", err)
 	}
-	defer os.RemoveAll(logDir)
+	defer require.NoError(t, os.RemoveAll(logDir))
 
 	// Test verbose mode
-	err := Init(true)
+	closeLogger, err := Init(true, false)
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, closeLogger())
+	})
 
 	// Check if the log file was created
 	_, err = os.Stat("logs/folderflow.log")
 	assert.NoError(t, err)
 
 	// Test non-verbose mode
-	err = Init(false)
+	closeLogger2, err := Init(false, false)
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, closeLogger2())
+	})
 
 	// Check if the log file was created
 	_, err = os.Stat("logs/folderflow.log")
@@ -122,11 +128,14 @@ func TestLoggerOutput(t *testing.T) {
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		t.Fatalf("Failed to create log directory: %v", err)
 	}
-	defer os.RemoveAll(logDir)
+	defer require.NoError(t, os.RemoveAll(logDir))
 
 	// Initialize logger
-	err := Init(true)
+	closeLogger, err := Init(true, false)
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, closeLogger())
+	})
 
 	// Log a message
 	slog.Info("test info message")

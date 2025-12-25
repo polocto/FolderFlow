@@ -12,3 +12,5 @@ testdata/
 .env
 .env.local
 .env.*.local
+
+test

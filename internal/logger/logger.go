@@ -22,7 +22,9 @@ func (h *MultiHandler) Enabled(ctx context.Context, level slog.Level) bool {
 func (h *MultiHandler) Handle(ctx context.Context, r slog.Record) error {
 	for _, handler := range h.handlers {
 		if handler.Enabled(ctx, r.Level) {
-			_ = handler.Handle(ctx, r)
+			if err := handler.Handle(ctx, r); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -44,18 +46,21 @@ func (h *MultiHandler) WithGroup(name string) slog.Handler {
 	return &MultiHandler{handlers: hs}
 }
 
-func Init(verbose bool) error {
-	// File handler (always debug)
+func Init(verbose, debug bool) (func() error, error) {
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		return nil, err
+	}
+
 	file, err := os.OpenFile(
 		"logs/folderflow.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0644,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var leveler slog.Leveler = slog.LevelInfo
-	if os.Getenv("DEBUG") != "" {
+	if debug {
 		leveler = slog.LevelDebug
 	}
 
@@ -80,5 +85,5 @@ func Init(verbose bool) error {
 	}
 
 	slog.SetDefault(slog.New(handler))
-	return nil
+	return file.Close, nil
 }

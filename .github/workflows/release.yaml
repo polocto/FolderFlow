@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            goos: linux
+            arch: amd64
+            ext: ""
+
+          - runner: ubuntu-latest
+            goos: linux
+            arch: arm64
+            ext: ""
+
+          - runner: windows-latest
+            goos: windows
+            arch: amd64
+            ext: ".exe"
+
+          - runner: macos-latest
+            goos: darwin
+            arch: amd64
+            ext: ""
+
+          - runner: macos-latest
+            goos: darwin
+            arch: arm64
+            ext: ""
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p dist
+          go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o dist/ff-${{ github.ref_name }}-${{ matrix.goos }}-${{ matrix.arch }}${{ matrix.ext }} \
+            ./cmd/folderflow
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.goos }}-${{ matrix.arch }}
+          path: dist/*
+
+  release:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          find . -type f ! -name 'checksums.txt' -exec sha256sum {} \; > checksums.txt
+
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/**
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}

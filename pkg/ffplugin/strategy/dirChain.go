@@ -69,7 +69,7 @@ func (s *DirChainStrategy) FinalDirPath(srcDir, destDir, filePath string, info f
 
 func init() {
 	RegisterStrategy("dirchain", func() Strategy {
-		slog.Debug("Create a strategy", "name", "date")
+		slog.Debug("Create a strategy", "name", "dirchain")
 		return &DirChainStrategy{}
 	})
 }

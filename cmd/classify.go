@@ -8,6 +8,7 @@ import (
 
 	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
+	"github.com/polocto/FolderFlow/internal/stats"
 	"github.com/spf13/cobra"
 )
 
@@ -31,8 +32,10 @@ to quickly create a Cobra application.`,
 			slog.Error("An error occured while loading the config", "error", err)
 			return
 		}
-
-		if err := classify.Classify(*conf, cfg.DryRun); err != nil {
+		var s stats.Stats
+		if classifier, err := classify.NewClassifier(*conf, &s, cfg.DryRun); err != nil {
+			slog.Error("An error occured while configuring classification")
+		} else if err := classifier.Classify(); err != nil {
 			slog.Error("An error occured while classing the documents", "error", err)
 		}
 	},

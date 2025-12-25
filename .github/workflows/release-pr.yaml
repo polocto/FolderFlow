@@ -1,0 +1,109 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Next release version (SemVer, without v)"
+        required: true
+        example: "1.1.2"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate SemVer
+        run: |
+          if ! [[ "${{ inputs.version }}" =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$ ]]; then
+            echo "Invalid SemVer version"
+            exit 1
+          fi
+
+      - name: Update CHANGELOG.md
+        run: |
+          VERSION="${{ inputs.version }}"
+          DATE="$(date +%Y-%m-%d)"
+
+          awk -v version="$VERSION" -v date="$DATE" '
+          BEGIN {
+            in_unreleased = 0
+            found_unreleased = 0
+            buffer = ""
+          }
+
+          # Detect Unreleased header
+          /^## \[Unreleased\]/ {
+            print "## [Unreleased]"
+            print ""
+            print "### Added"
+            print ""
+            print "### Changed"
+            print ""
+            print "### Removed"
+            print ""
+            print "## [" version "] - " date
+            found_unreleased = 1
+            in_unreleased = 1
+            next
+          }
+
+          # Store content under Unreleased
+          {
+            if (found_unreleased && in_unreleased) {
+              buffer = buffer $0 "\n"
+            } else {
+              print
+            }
+          }
+
+          # Detect next version header
+          /^## \[/ && in_unreleased == 1 {
+            in_unreleased = 0
+            print buffer
+            print
+            print $0
+            next
+          }
+
+          END {
+            if (found_unreleased && in_unreleased) {
+              print buffer
+            }
+          }
+          ' CHANGELOG.md > CHANGELOG.tmp
+
+          mv CHANGELOG.tmp CHANGELOG.md
+
+      - name: Create release branch
+        run: |
+          git checkout -b release/${{ inputs.version }}
+
+      - name: Commit changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+          git commit -m "chore(release): ${{ inputs.version }}"
+          git push origin release/${{ inputs.version }}
+
+      - name: Open Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "Release ${{ inputs.version }}"
+          body: |
+            Prepare release **${{ inputs.version }}**
+
+            - Promotes `[Unreleased]` to `${{ inputs.version }}`
+            - SemVer-compliant release
+          base: main
+          head: release/${{ inputs.version }}

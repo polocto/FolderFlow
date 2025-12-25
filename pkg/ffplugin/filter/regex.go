@@ -6,11 +6,13 @@ import (
 	"log/slog"
 	"path/filepath"
 	"regexp"
+
+	"gopkg.in/yaml.v3"
 )
 
 // CustomFilter is an example custom filter.
 type RegexFilter struct {
-	Patterns   []string `yaml:"regex"`
+	Patterns   []string `yaml:"patterns"`
 	compiledRe []*regexp.Regexp
 }
 
@@ -31,25 +33,35 @@ func (f *RegexFilter) Selector() string {
 }
 
 func (f *RegexFilter) LoadConfig(config map[string]interface{}) error {
-	if patterns, ok := config["patterns"].([]string); ok {
-		if len(patterns) == 0 {
-			slog.Error("Patterns list is empty", "config", config)
-			return fmt.Errorf("'patterns' config cannot be empty")
-		}
-		f.Patterns = patterns
-	} else {
-		slog.Error("Failed to load patterns", "config", config)
-		return fmt.Errorf("invalid or missing 'patterns' config")
+	var cfg struct {
+		Patterns []string `yaml:"patterns"`
 	}
-	compiled := make([]*regexp.Regexp, len(f.Patterns))
-	for i, pat := range f.Patterns {
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return err
+	}
+
+	if len(cfg.Patterns) == 0 {
+		return fmt.Errorf("'patterns' config cannot be empty")
+	}
+
+	compiled := make([]*regexp.Regexp, len(cfg.Patterns))
+	for i, pat := range cfg.Patterns {
 		re, err := regexp.Compile(pat)
 		if err != nil {
-			return fmt.Errorf("invalid patterns %q: %v", pat, err)
+			return fmt.Errorf("invalid pattern %q: %w", pat, err)
 		}
 		compiled[i] = re
 	}
+
+	f.Patterns = cfg.Patterns
 	f.compiledRe = compiled
+
 	slog.Debug("Loading regex was successful", "patterns", f.Patterns)
 	return nil
 }

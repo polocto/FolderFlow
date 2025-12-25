@@ -1,23 +1,19 @@
 package config
 
 import (
+	"fmt"
+	"log/slog"
 	"os"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
-
-type Regroup struct {
-	Path string `yaml:"path"`
-	Mode string `yaml:"mode,omitempty"` // "symlink", "hardlink" or "copy"
-	// Strategy *strategy.Strategy `yaml:"strategy,omitempty"` // "date", "dirchain", etc.
-}
 
 type Config struct {
 	SourceDirs []string `yaml:"source_dirs"`
 	// GlobalStategy *strategy.Strategy `yaml:"global_strategy,omitempty"` // Default strategy if not specified in DestDir
-	DestDirs   map[string]DestDir `yaml:"dest_dirs"` // Map destination name to DestDir
-	Regroup    `yaml:"regroup,omitempty"`
-	MaxWorkers int `yaml:"max_workers"` // Maximum number of concurrent workers
+	DestDirs   []DestDir `yaml:"dest_dirs"`         // Map destination name to DestDir
+	Regroup    *Regroup  `yaml:"regroup,omitempty"` // Optional regroup configuration
+	MaxWorkers int       `yaml:"max_workers"`       // Maximum number of concurrent workers 0, negatif or omitted means default
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -34,9 +30,23 @@ func LoadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
-func (c *Config) SetDefault() {
-
-	if c.Regroup.Mode == "" && c.Regroup.Path != "" {
-		c.Regroup.Mode = "symlink"
+func (cfg *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type rawConfig Config // Avoid recursion
+	raw := rawConfig{}
+	slog.Debug("Loading Config")
+	if err := unmarshal(&raw); err != nil {
+		return err
 	}
+
+	if len(raw.SourceDirs) == 0 {
+		return fmt.Errorf("at least one source_dir must be specified")
+	}
+
+	if len(raw.DestDirs) == 0 {
+		return fmt.Errorf("at least one dest_dir must be specified")
+	}
+
+	*cfg = Config(raw)
+	slog.Debug("Config unmarshaling successful", "SourceDirs", cfg.SourceDirs, "Number of DestDirs", len(cfg.DestDirs))
+	return nil
 }

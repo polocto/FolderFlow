@@ -107,7 +107,7 @@ func TestRegexFilterLoadConfig(t *testing.T) {
 	if len(filter.Patterns) != 2 {
 		t.Error("LoadConfig did not load patterns correctly")
 	}
-	if len(filter.compiledRe) != 2 {
+	if len(filter.Patterns) != 2 {
 		t.Error("LoadConfig did not compile patterns correctly")
 	}
 

@@ -26,6 +26,7 @@ func RegisterStrategy(name string, factory func() Strategy) {
 
 func NewStrategy(name string) (Strategy, error) {
 	factory, ok := strategyRegistry[name]
+	slog.Debug("Retrieving strategy", "name", name, "found", ok)
 	if !ok {
 		return nil, fmt.Errorf("unknown strategy: %s", name)
 	}

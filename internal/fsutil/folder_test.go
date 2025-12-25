@@ -1,4 +1,4 @@
-package classify
+package fsutil
 
 import (
 	"path/filepath"
