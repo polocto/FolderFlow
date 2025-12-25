@@ -192,8 +192,8 @@ func TestResolveConflict_Rename_Different(t *testing.T) {
 	src := filepath.Join(tmp, "a.txt")
 	dst := filepath.Join(tmp, "b.txt")
 
-	os.WriteFile(src, []byte("A"), 0644)
-	os.WriteFile(dst, []byte("B"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("A"), 0644))
+	require.NoError(t, os.WriteFile(dst, []byte("B"), 0644))
 
 	newDst, action, err := resolveConflict(src, dst, "rename")
 	if err != nil {
@@ -276,7 +276,7 @@ func TestMoveFile_NoConflict(t *testing.T) {
 	src := filepath.Join(tmp, "src.txt")
 	dst := filepath.Join(tmp, "dst.txt")
 
-	os.WriteFile(src, []byte("data"), 0644)
+	require.NoError(t, os.WriteFile(src, []byte("data"), 0644))
 
 	action, err := moveFile(src, dst, "skip", false)
 	if err != nil {

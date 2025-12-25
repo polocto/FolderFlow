@@ -10,7 +10,7 @@ import (
 
 func TestDateStrategy(t *testing.T) {
 	s := &DateStrategy{}
-	s.LoadConfig(map[string]interface{}{})
+	require.NoError(t, s.LoadConfig(map[string]interface{}{}))
 
 	file := filepath.Join(t.TempDir(), "a.txt")
 	require.NoError(t, os.WriteFile(file, []byte("x"), 0644))
