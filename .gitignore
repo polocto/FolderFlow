@@ -3,7 +3,7 @@ ff
 *.log
 test_data/
 testdata/
-!folderflow/
+!ff/
 .VSCodeCounter/
 .DS_Store
 .vscode/

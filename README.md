@@ -37,17 +37,17 @@ At a high level, FolderFlow:
 ```bash
 git clone https://github.com/polocto/FolderFlow.git
 cd FolderFlow
-go build
+go build cmd/ff
 ```
 
-This produces a `FolderFlow` (or `FolderFlow.exe`) binary.
+This produces a `ff` (or `ff.exe`) binary.
 
 ## Usage
 
 FolderFlow is executed through the `classify` command.
 
 ```bash
-folderflow classify --file config.yaml
+ff classify --file config.yaml
 ```
 
 ### Globals flags
