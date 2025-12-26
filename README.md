@@ -32,11 +32,6 @@ At a high level, FolderFlow:
 
 ## Installation
 
-### Requirements
-
-- Go **1.21+**
-- Linux, macOS, or Windows
-
 ### Build from source
 
 ```bash
