@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/go-1.25+-blue.svg)](https://go.dev/)
 [![License](https://img.shields.io/github/license/polocto/FolderFlow)](LICENSE)
-[![Go](https://github.com/polocto/FolderFlow/actions/workflows/go.yaml/badge.svg)](https://github.com/polocto/FolderFlow/actions/workflows/go.yaml)
+[![CI](https://github.com/polocto/FolderFlow/actions/workflows/go.yaml/badge.svg)](https://github.com/polocto/FolderFlow/actions/workflows/go.yaml)
 [![Last Commit](https://img.shields.io/github/last-commit/polocto/FolderFlow/dev)](https://github.com/polocto/FolderFlow/commits/dev)
 [![Last Release](https://img.shields.io/github/v/release/polocto/FolderFlow)](https://github.com/polocto/FolderFlow/releases)
 
