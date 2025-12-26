@@ -166,12 +166,9 @@ regroup:
 - No file duplication
 
 Supported modes:
-
-|Mode|Description|
-|:-|:-|
-|`symlink`||
-|`hardlink`||
-|`copy`||
+- `symlink`
+- `hardlink`
+- `copy`
 
 If the regroup path matches a source directory, it is skipped to avoid loops.
 
