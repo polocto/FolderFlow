@@ -108,5 +108,5 @@ jobs:
             - Promotes `[Unreleased]` to `${{ inputs.version }}`
             - SemVer-compliant release
           base: main
-          branch: release/${{ inputs.version }}
+          head: release/${{ inputs.version }}
 
