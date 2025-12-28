@@ -47,7 +47,7 @@ This produces a `ff` (or `ff.exe`) binary.
 FolderFlow is executed through the `classify` command.
 
 ```bash
-ff classify --file config.yaml
+ff classify --config config.yaml
 ```
 
 ### Globals flags
@@ -92,6 +92,7 @@ regroup:
   path: "./testdata/regrouped"
   mode: hardlink
 
+# Optimize CPU cusumption since the I/O will be the main bottle neck
 max_workers: 0
 ```
 
