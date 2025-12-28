@@ -52,5 +52,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	classifyCmd.Flags().StringVarP(&configFile, "file", "f", "", "")
+	classifyCmd.Flags().StringVarP(&configFile, "config", "c", "", "path of the YAML config file")
 }
