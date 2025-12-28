@@ -27,6 +27,14 @@ jobs:
             echo "Invalid SemVer version"
             exit 1
           fi
+
+      - name: Ensure release branch does not already exist
+        run: |
+          if git ls-remote --exit-code --heads origin release/${{ inputs.version }}; then
+            echo "Release branch already exists"
+            exit 1
+          fi
+
       - name: Version documentation (Docusaurus)
         run: |
           cd docs
@@ -89,22 +97,10 @@ jobs:
 
           mv CHANGELOG.tmp CHANGELOG
 
-      - name: Create release branch
-        run: |
-          git checkout -b release/${{ inputs.version }}
-
-      - name: Commit changelog & documentation
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add CHANGELOG docs/versioned_docs docs/versioned_sidebars
-          git commit -m "chore(release): ${{ inputs.version }}"
-          git push origin release/${{ inputs.version }}
-
       - name: Open Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
+          commit-message: "chore(release): ${{ inputs.version }}"
           title: "Release ${{ inputs.version }}"
           body: |
             Prepare release **${{ inputs.version }}**
@@ -113,3 +109,4 @@ jobs:
             - SemVer-compliant release
           base: main
           branch: release/${{ inputs.version }}
+
