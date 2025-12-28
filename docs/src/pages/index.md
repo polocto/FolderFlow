@@ -51,11 +51,9 @@ You’ll learn how to:
 - Troubleshoot common issues
 
 **Start here:**
-- [User Guide Overview](/docs/user-guide/)
-- [Installation](/docs/user-guide/installation)
-- [Features](/docs/user-guide/features/)
-- [Classification](/docs/user-guide/features/classification/)
-- [Troubleshooting](/docs/user-guide/troubleshooting)
+- [User Guide Overview](/user-guide/)
+- [Installation](/user-guide/installation)
+- [Classification](/user-guide/classification)
 
 ---
 
@@ -64,25 +62,11 @@ You’ll learn how to:
 If you want to **contribute to FolderFlow itself**, the Developer Guide explains the internal structure and development workflow.
 
 **Explore:**
-- [Developer Guide](/docs/dev-guide/intro)
-- [Code Structure](/docs/dev-guide/code-structure)
-- [Development Setup](/docs/dev-guide/setup)
-- [Testing](/docs/dev-guide/testing)
-- [Contributing](/docs/dev-guide/contributing)
-
----
-
-### 🧩 For Plugin Creators
-
-FolderFlow supports extensions through a plugin system.
-
-If you want to add new behavior—such as custom filters or strategies—start with the Plugin API.
-
-**Learn more:**
-- [Plugin API Overview](/docs/plugin-api/intro)
-- [API Reference](/docs/plugin-api/api-reference)
-- [Plugin Template](/docs/plugin-api/plugin-template)
-- [Best Practices](/docs/plugin-api/best-practices)
+- [Developer Guide](/dev-guide)
+- [Code Structure](/dev-guide/code-structure)
+- [Development Setup](/dev-guide/setup)
+- [Testing](/dev-guide/testing)
+- [Contributing](/dev-guide/contributing)
 
 ---
 

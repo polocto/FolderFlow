@@ -71,7 +71,7 @@ To start using the classification feature in FolderFlow, follow these steps:
 3. **Configure Destination Directories**: Define where files should be moved and how they should be organized.
 4. **Run FolderFlow**: Let FolderFlow handle the rest!
 
-For a step-by-step guide, check out the **[Configuration Page](/user-guide/features/classification/configuration)**.
+For a step-by-step guide, check out the **[Configuration Page](/user-guide/classification/configuration)**.
 
 ---
 
@@ -79,11 +79,13 @@ For a step-by-step guide, check out the **[Configuration Page](/user-guide/featu
 
 Explore the following sub-pages to learn more about classification in FolderFlow:
 
-- **[Configuration](/user-guide/features/classification/configuration)**: Learn how to set up your classification rules in the YAML file.
-- **[Examples](/user-guide/features/classification/examples)**: See real-world examples of classification rules.
-- **[Advanced Use Cases](/user-guide/features/classification/advanced)**: Discover advanced strategies and custom workflows.
-- **[Running Classification](./run)**: Once your configuration file is ready, you can run FolderFlow.
-- **[Troubleshooting](/user-guide/features/classification/troubleshooting)**: Find solutions to common issues.
+- **[Configuration](/user-guide/classification/configuration)**: Learn how to set up your classification rules in the YAML file.
+- **[Filters](/user-guide/classification/filters)**: 
+- **[Strategies](/user-guide/classification/strategies)**: 
+- **[Examples](/user-guide/classification/examples)**: See real-world examples of classification rules.
+- **[Advanced Use Cases](/user-guide/classification/advanced)**: Discover advanced strategies and custom workflows.
+- **[Running Classification](/user-guide/classification/run)**: Once your configuration file is ready, you can run FolderFlow.
+- **[Troubleshooting](/user-guide/classification/troubleshooting)**: Find solutions to common issues.
 
 ---
 
@@ -98,7 +100,7 @@ Here’s a simple example of how classification works in FolderFlow:
    - Move all `.mp4` files to `Videos/`.
 3. **Destination Strategy**: Use `dirchain` to place files directly in their respective folders.
 
-For more examples, visit the **[Examples Page](/user-guide/features/classification/examples)**.
+For more examples, visit the **[Examples Page](/user-guide/classification/examples)**.
 
 ---
 
@@ -114,7 +116,7 @@ For more examples, visit the **[Examples Page](/user-guide/features/classificati
 
 ## ❓ Troubleshooting
 
-If you encounter issues with classification, check out the **[Troubleshooting Page](/user-guide/features/classification/troubleshooting)** for common solutions.
+If you encounter issues with classification, check out the **[Troubleshooting Page](/user-guide/classification/troubleshooting)** for common solutions.
 
 ---
 
@@ -128,4 +130,4 @@ Follow FolderFlow on **[GitHub](https://github.com/polocto/FolderFlow)** to stay
 
 The **Classification** feature in FolderFlow is a powerful tool for **automating file organization** and keeping your digital workspace tidy. By defining flexible rules and strategies, you can create a system that works for your specific needs.
 
-Ready to get started? Head over to the **[Configuration Page](/user-guide/features/classification/configuration)** to set up your first classification rules!
+Ready to get started? Head over to the **[Configuration Page](/user-guide/classification/configuration)** to set up your first classification rules!

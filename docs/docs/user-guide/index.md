@@ -95,7 +95,7 @@ Once you understand the philosophy, the next step is to explore **features**.
 
 Start with **Classification**, which is the primary way FolderFlow organizes files:
 
-👉 **[Classification](/user-guide/features/classification/)**
+👉 **[Classification](./classification)**
 
 From there, you can dive into configuration details, examples, and advanced use cases.
 

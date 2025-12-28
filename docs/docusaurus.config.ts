@@ -54,7 +54,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/polocto/FolderFlow/tree/main/docs',
-          routeBasePath: '/', // Serve docs at the root
+          routeBasePath: '', // Serve docs at the root
           lastVersion: 'current',
           versions: {
             current: {
@@ -114,11 +114,11 @@ const config: Config = {
           items: [
             {
               label: 'User Guide',
-              to: '/docs/user-guide/intro',
+              to: '/user-guide/',
             },
             {
               label: 'Developer Guide',
-              to: '/docs/dev-guide/intro',
+              to: '/dev-guide/',
             },
           ],
         },
