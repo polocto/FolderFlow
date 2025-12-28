@@ -26,6 +26,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.1.1] - 2025-12-28
+
+### Added
+
+### Changed
+
+1. Standardize FolderFlow binary to be named `ff`
+    - `cmd/folderflow` -> `cmd/ff``
+    - `.gitignore`, `README.md` and `.github/worflows/*.yaml` have been udated accordingly
+2. Add a Docusaurus documentation and write it
+3. Add a pipeline (github action) to push documentation to github wiki
+4. Move go.yaml CI to ci.yaml to inlclude docs pkg build verification
+5. Update config file flag for `--file` to `--config`
+6. Update Pr-Release CI plugins
+
+### Removed
+
+## [0.1.0] - 2025-12-25
+
+## [0.1.0] - 2025-12-25
 ## [0.1.0] - 2025-12-25
 
 ### Added
