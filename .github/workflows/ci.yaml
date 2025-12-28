@@ -4,8 +4,8 @@
 name: CI
 
 on:
-  push:
-    branches: [ "main", "dev" ]
+  push: 
+    branches: ['**']
   pull_request:
     branches: [ "main", "dev" ]
 
@@ -51,3 +51,25 @@ jobs:
           go-version-file: go.mod
       - name: Run race detector
         run: go test -race ./...
+  
+  
+  docs-build:
+    name: Docs build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: npm ci
+
+      - name: Build documentation
+        working-directory: docs
+        run: npm run build
