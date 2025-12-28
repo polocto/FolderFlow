@@ -11,6 +11,8 @@ FolderFlow is a **Go-based command-line application** for classifying and organi
 It scans directories recursively, applies filters to files, preserves directory structure, and moves files accordingly.  
 An optional *regroup* directory can be created to centralize all processed files using filesystem links.
 
+For more information check the [documentation](https://polocto.github.io/FolderFlow/).
+
 ---
 
 ## Key Concepts
