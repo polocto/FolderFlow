@@ -3,11 +3,39 @@ package fsutil
 import (
 	"crypto/sha256"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"github.com/polocto/FolderFlow/internal/stats"
 )
+
+func CopyDir(src, dst string) error {
+	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		rel, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+
+		target := filepath.Join(dst, rel)
+
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return os.MkdirAll(target, info.Mode())
+		}
+
+		return CopyFileAtomic(path, target)
+	})
+}
 
 func CopyFile(src, dst string, s *stats.Stats) ([]byte, error) {
 	if s != nil {
