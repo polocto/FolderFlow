@@ -1,6 +1,7 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
+// Copyright 2026 Paul Sade
+// GPLv3 - See LICENSE for details.
+
+
 package cmd
 
 import (

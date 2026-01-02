@@ -233,10 +233,5 @@ Until a stable `v1.0.0` release:
 - Configuration format may evolve
 - Users should consult the changelog before upgrading
 
-## License
-
-This project is licensed under the MIT License.
-
-See the license file for details:
-
-- 📄 [`LICENSE`](LICENSE)
+## Licence
+Ce projet est désormais sous licence [GPLv3](LICENSE).

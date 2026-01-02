@@ -1,3 +1,7 @@
+// Copyright 2026 Paul Sade
+// GPLv3 - See LICENSE for details.
+
+
 import "io/fs"
 
 // ExampleFilter is an example custom filter.
