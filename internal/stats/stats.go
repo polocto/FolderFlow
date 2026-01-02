@@ -1,3 +1,7 @@
+// Copyright 2026 Paul Sade
+// GPLv3 - See LICENSE for details.
+
+
 /*
 Package stats provides thread-safe runtime statistics collection
 for FolderFlow executions.

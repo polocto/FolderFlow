@@ -1,3 +1,7 @@
+// Copyright 2026 Paul Sade
+// GPLv3 - See LICENSE for details.
+
+
 package stats
 
 import (

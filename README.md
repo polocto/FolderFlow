@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/go-1.25+-blue.svg)](https://go.dev/)
 [![License](https://img.shields.io/github/license/polocto/FolderFlow)](LICENSE)
-[![CI](https://github.com/polocto/FolderFlow/actions/workflows/ci.yaml/badge.svg)](https://github.com/polocto/FolderFlow/actions/workflows/ci.yaml)
+[![CI](https://github.com/polocto/FolderFlow/actions/workflows/ci.yaml/badge.svg)](https://github.com/polocto/FolderFlow/actions/workflows/ci.yaml?query=branch%3Amain)
 [![Last Commit](https://img.shields.io/github/last-commit/polocto/FolderFlow/dev)](https://github.com/polocto/FolderFlow/commits/dev)
 [![Last Release](https://img.shields.io/github/v/release/polocto/FolderFlow)](https://github.com/polocto/FolderFlow/releases)
 
@@ -233,10 +233,5 @@ Until a stable `v1.0.0` release:
 - Configuration format may evolve
 - Users should consult the changelog before upgrading
 
-## License
-
-This project is licensed under the MIT License.
-
-See the license file for details:
-
-- 📄 [`LICENSE`](LICENSE)
+## Licence
+Ce projet est désormais sous licence [GPLv3](LICENSE).

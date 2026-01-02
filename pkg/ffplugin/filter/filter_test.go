@@ -1,3 +1,7 @@
+// Copyright 2026 Paul Sade
+// GPLv3 - See LICENSE for details.
+
+
 // pkg/ffplugin/filter/filter_test.go
 package filter
 
