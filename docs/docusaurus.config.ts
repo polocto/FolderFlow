@@ -141,7 +141,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} FolderFlow. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Paul Sade. FolderFlow is licensed under the GNU General Public License version 3 (GPLv3).`
     },
     prism: {
       theme: prismThemes.github,
