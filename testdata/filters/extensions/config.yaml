@@ -1,0 +1,49 @@
+# Dossiers sources à traiter
+source_dirs:
+  - "./testdata/input/basic"
+
+# Dossiers de destination avec filtres et stratégies
+dest_dirs:
+  - name: "documents"
+    path: "destination/documents"
+    filters:
+      - name: "extensions"
+        config:
+          extensions: [".txt", ".pdf", ".md"]
+    strategy:
+      name: "dirchain"
+
+  - name: "images"
+    path: "destination/images"
+    filters:
+      - name: "extensions"
+        config:
+          extensions: [".jpg", ".png", ".gif"]
+    strategy:
+      name: "dirchain"
+
+  - name: "videos"
+    path: "destination/videos"
+    filters:
+      - name: "extensions"
+        config:
+          extensions: [".mp4", ".mov", ".avi"]
+    strategy:
+      name: "dirchain"
+
+  - name: "archives"
+    path: "destination/archives"
+    filters:
+      - name: "extensions"
+        config:
+          extensions: [".zip", ".tar.gz", ".rar"]
+    strategy:
+      name: "dirchain"
+
+# Regroupement des fichiers traités
+regroup:
+  path: "regrouped"
+  mode: hardlink
+
+# Nombre maximum de workers (0 pour auto-détection)
+max_workers: 0

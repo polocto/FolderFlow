@@ -1,11 +1,19 @@
-// Copyright 2026 Paul Sade
-// GPLv3 - See LICENSE for details.
-
+// Copyright (c) 2026 Paul Sade.
+//
+// This file is part of the FolderFlow project.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3,
+// as published by the Free Software Foundation (see the LICENSE file).
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
 
 package fsutil
 
 import (
-	"bytes"
 	"path/filepath"
 	"testing"
 
@@ -27,7 +35,7 @@ func TestFilesEqualHash_SameContent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected files to be equal")
 	}
 }
@@ -47,7 +55,7 @@ func TestFilesEqualHash_DifferentContent(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if bytes.Equal(hash1, hash2) {
+	if hash1 == hash2 {
 		t.Fatalf("expected files to be different")
 	}
 }
@@ -66,7 +74,7 @@ func TestFilesEqualHash_EmptyFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected empty files to be equal")
 	}
 }
@@ -103,7 +111,7 @@ func TestFilesEqualHash_LargeFile(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected large files to be equal")
 	}
 }
