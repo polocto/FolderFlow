@@ -14,7 +14,6 @@
 package fsutil
 
 import (
-	"bytes"
 	"path/filepath"
 	"testing"
 
@@ -36,7 +35,7 @@ func TestFilesEqualHash_SameContent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected files to be equal")
 	}
 }
@@ -56,7 +55,7 @@ func TestFilesEqualHash_DifferentContent(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if bytes.Equal(hash1, hash2) {
+	if hash1 == hash2 {
 		t.Fatalf("expected files to be different")
 	}
 }
@@ -75,7 +74,7 @@ func TestFilesEqualHash_EmptyFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected empty files to be equal")
 	}
 }
@@ -112,7 +111,7 @@ func TestFilesEqualHash_LargeFile(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if !bytes.Equal(hash1, hash2) {
+	if hash1 != hash2 {
 		t.Fatalf("expected large files to be equal")
 	}
 }

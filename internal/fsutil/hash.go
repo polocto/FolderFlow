@@ -16,33 +16,44 @@ package fsutil
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/polocto/FolderFlow/internal/stats"
 )
 
-func FileHash(path string, s *stats.Stats) ([]byte, error) {
+func FileHash(path string, s *stats.Stats) ([sha256.Size]byte, error) {
+	var result [sha256.Size]byte
+
 	if s != nil {
 		defer s.Time(&s.Timing.Hash)()
 	}
+
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return result, fmt.Errorf("cannot open file %s: %v", path, err)
 	}
 	defer func() {
 		if cerr := f.Close(); cerr != nil && err == nil {
-			err = cerr
+			err = fmt.Errorf("error while closing file %s: %v", path, cerr)
 		}
 	}()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return nil, err
-	} else if s != nil {
+		return result, fmt.Errorf("error while reading file%s: %v", path, err)
+	}
+
+	// Copie le hachage calculé dans un tableau de 32 octets
+	hash := h.Sum(nil)
+	copy(result[:], hash)
+
+	if s != nil {
 		s.HashComputed()
 	}
-	return h.Sum(nil), nil
+
+	return result, nil
 }
 
 func HashEqual(f1, f2 []byte, s *stats.Stats) bool {

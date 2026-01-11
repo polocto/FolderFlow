@@ -1,11 +1,11 @@
 # Dossiers sources à traiter
 source_dirs:
-  - "./testdata/source"
+  - "./testdata/input/basic"
 
 # Dossiers de destination avec filtres et stratégies
 dest_dirs:
   - name: "documents"
-    path: "./testdata/destination/documents"
+    path: "destination/documents"
     filters:
       - name: "extensions"
         config:
@@ -14,7 +14,7 @@ dest_dirs:
       name: "dirchain"
 
   - name: "images"
-    path: "./testdata/destination/images"
+    path: "destination/images"
     filters:
       - name: "extensions"
         config:
@@ -23,7 +23,7 @@ dest_dirs:
       name: "dirchain"
 
   - name: "videos"
-    path: "./testdata/destination/videos"
+    path: "destination/videos"
     filters:
       - name: "extensions"
         config:
@@ -32,7 +32,7 @@ dest_dirs:
       name: "dirchain"
 
   - name: "archives"
-    path: "./testdata/destination/archives"
+    path: "destination/archives"
     filters:
       - name: "extensions"
         config:
@@ -42,7 +42,7 @@ dest_dirs:
 
 # Regroupement des fichiers traités
 regroup:
-  path: "./testdata/regrouped"
+  path: "regrouped"
   mode: hardlink
 
 # Nombre maximum de workers (0 pour auto-détection)
