@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU General Public License for more details.
 
-package folderflow_test
+package testdata_test
 
 import (
 	"crypto/sha256"
@@ -60,7 +60,7 @@ func mustCopyDir(t *testing.T, src, dst string) {
 	}
 }
 
-func mockDirs(t *testing.T, cfg *config.Config) string {
+func mockDirs(t *testing.T, cfg *config.Config, workDir string) string {
 	t.Helper()
 	if cfg == nil {
 		t.Fatal("config is nil")
@@ -69,6 +69,7 @@ func mockDirs(t *testing.T, cfg *config.Config) string {
 	destination := t.TempDir()
 
 	for i, src := range cfg.SourceDirs {
+		src = filepath.Join(workDir, src)
 		tmp := filepath.Join(source, filepath.Base(src))
 		mustCopyDir(t, src, tmp)
 		cfg.SourceDirs[i] = tmp
@@ -142,7 +143,7 @@ func walkDir(root string) ([]FileInfo, error) {
 	return files, err
 }
 func TestAllClassifyConfigs(t *testing.T) {
-	root := "testdata"
+	root := "../testdata"
 	maxDepth := 2
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -186,7 +187,7 @@ func TestAllClassifyConfigs(t *testing.T) {
 			}
 
 			// Arrange
-			result := mockDirs(t, cfg)
+			result := mockDirs(t, cfg, root)
 			var s stats.Stats
 			class, err := classify.NewClassifier(*cfg, &s, false)
 			if err != nil {

@@ -1,6 +1,6 @@
 # Dossiers sources à traiter
 source_dirs:
-  - "./testdata/input/basic"
+  - "input/basic"
 
 # Dossiers de destination avec filtres et stratégies
 dest_dirs:
