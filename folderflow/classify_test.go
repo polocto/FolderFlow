@@ -88,38 +88,39 @@ func mockDirs(t *testing.T, cfg *config.Config, workDir string) string {
 	return destination
 }
 
-func assertDirEquals(t *testing.T, expected, result string) {
-	files1, err := walkDir(expected)
+func assertDirEquals(t *testing.T, expectedPath, resultPath string) {
+
+	// Get files info for each result and expected directories
+	expectedFiles, err := walkDir(expectedPath)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	files2, err := walkDir(result)
+	resultFiles, err := walkDir(resultPath)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	// Tri des listes pour faciliter la comparaison
-	sort.Slice(files1, func(i, j int) bool { return files1[i].Path < files1[j].Path })
-	sort.Slice(files2, func(i, j int) bool { return files2[i].Path < files2[j].Path })
 
-	// Comparaison des chemins et noms de fichiers
-	i := 0
+	// Sort list to facilitate comparaison
+	sort.Slice(expectedFiles, func(i, j int) bool { return expectedFiles[i].Path < expectedFiles[j].Path })
+	sort.Slice(resultFiles, func(i, j int) bool { return resultFiles[i].Path < resultFiles[j].Path })
 
-	if len(files1) != len(files2) {
-		t.Errorf("Not the same number of paths. Expected: %d\tResult: %d", len(files1), len(files2))
+	// Files name, path and files comparaison
+	if len(expectedFiles) != len(resultFiles) {
+		t.Errorf("Not the same number of paths. Expected: %d\tResult: %d", len(expectedFiles), len(resultFiles))
 		return
 	}
 
-	for i < len(files1) {
-		if files1[i].Path != files2[i].Path || files1[i].Hash != files2[i].Hash {
-			t.Errorf("Files are different | Path1 : %s  & Path2 : %s\n", files1[i].Path, files2[i].Path)
+	for i := 0; i < len(expectedFiles); i++ {
+		if expectedFiles[i].Path != resultFiles[i].Path || expectedFiles[i].Hash != resultFiles[i].Hash {
+			t.Errorf("Files are different | Path1 : %s  & Path2 : %s\n", expectedFiles[i].Path, resultFiles[i].Path)
+			return
 		}
-		i++
 	}
 }
 
-// walkDir parcourt un répertoire et retourne une liste de FileInfo
+// walkDir walk through a directory and returns a list of FileInfo
 func walkDir(root string) ([]FileInfo, error) {
 	var files []FileInfo
 
@@ -143,25 +144,26 @@ func walkDir(root string) ([]FileInfo, error) {
 	return files, err
 }
 func TestAllClassifyConfigs(t *testing.T) {
+	// Root directory for test datas
 	root := "../testdata"
-	maxDepth := 2
+	maxDepth := 2 // defin max depth level to 2
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Calculer la profondeur actuelle
+		// Identify actual depth
 		relPath, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
 		}
 		depth := 0
-		if relPath != "." { // Éviter de compter le dossier racine comme un niveau
+		if relPath != "." { // Do not count actual dir as a depth level
 			depth = len(filepath.SplitList(relPath))
 		}
 
-		// Arrêter la récursion si la profondeur maximale est atteinte
+		// Stop recursion when max depth level is reached
 		if depth >= maxDepth && d.IsDir() {
 			return fs.SkipDir
 		}
@@ -188,6 +190,8 @@ func TestAllClassifyConfigs(t *testing.T) {
 
 			// Arrange
 			result := mockDirs(t, cfg, root)
+
+			// Run
 			var s stats.Stats
 			class, err := classify.NewClassifier(*cfg, &s, false)
 			if err != nil {
@@ -199,11 +203,10 @@ func TestAllClassifyConfigs(t *testing.T) {
 			}
 
 			// Assert
-			// assertDirEquals(t, filepath.Join(expected, "destination"), filepath.Join(result, "destination"))
-			// assertDirEquals(t, filepath.Join(expected, "regrouped"), filepath.Join(result, "regrouped"))
 			expected := filepath.Join(caseDir, "expected")
 
 			assertDirEquals(t, expected, result)
+
 			if t.Failed() {
 				t.Logf("Actual Test Dir : %s", caseDir)
 				child, _ := os.ReadDir(expected)
