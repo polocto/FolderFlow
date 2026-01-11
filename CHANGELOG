@@ -13,14 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+**Test**
+
+Generic test to check if plugins work as expected
+
 ### Changed
 
 **Changement de licence**
+
 Ce projet passe de la licence MIT à la licence GPLv3.
 Ce changement reflète notre engagement envers la transparence et le partage des modifications.
 Pour plus de détails, consultez le fichier [LICENSE](LICENSE).
 
+**Logging**
+
+Logger is now handle in cmd/root for cli
+
 ### Removed
+
+**Logger**
+logger package have been deleted to simplify the slog configuration
 
 ## [0.1.1] - 2025-12-28
 
