@@ -174,37 +174,44 @@ func TestAllClassifyConfigs(t *testing.T) {
 		}
 
 		caseDir := filepath.Dir(path)
-		expected := filepath.Join(caseDir, "expected")
 
-		cfg, err := config.LoadConfig(filepath.Join(caseDir, "config.yaml"))
-		if err != nil {
-			t.Fatal(err)
-		}
+		testName := filepath.Base(caseDir)
 
-		// Arrange
-		result := mockDirs(t, cfg)
-		var s stats.Stats
-		class, err := classify.NewClassifier(*cfg, &s, false)
-		if err != nil {
-			t.Fatal(err)
-		}
+		// Exécuter un sous-test pour chaque config.yaml
+		t.Run(testName, func(t *testing.T) {
 
-		if err := class.Classify(); err != nil {
-			t.Error(err)
-		}
+			cfg, err := config.LoadConfig(filepath.Join(caseDir, "config.yaml"))
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		// Assert
-		// assertDirEquals(t, filepath.Join(expected, "destination"), filepath.Join(result, "destination"))
-		// assertDirEquals(t, filepath.Join(expected, "regrouped"), filepath.Join(result, "regrouped"))
-		assertDirEquals(t, expected, result)
-		if t.Failed() {
-			t.Logf("Actual Test Dir : %s", caseDir)
-			child, _ := os.ReadDir(expected)
-			t.Logf("Expected sub-dirs : %s", child)
-			child, _ = os.ReadDir(result)
-			t.Logf("Result sub-dirs : %s", child)
-			t.Log(s.String())
-		}
+			// Arrange
+			result := mockDirs(t, cfg)
+			var s stats.Stats
+			class, err := classify.NewClassifier(*cfg, &s, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if err := class.Classify(); err != nil {
+				t.Error(err)
+			}
+
+			// Assert
+			// assertDirEquals(t, filepath.Join(expected, "destination"), filepath.Join(result, "destination"))
+			// assertDirEquals(t, filepath.Join(expected, "regrouped"), filepath.Join(result, "regrouped"))
+			expected := filepath.Join(caseDir, "expected")
+
+			assertDirEquals(t, expected, result)
+			if t.Failed() {
+				t.Logf("Actual Test Dir : %s", caseDir)
+				child, _ := os.ReadDir(expected)
+				t.Logf("Expected sub-dirs : %s", child)
+				child, _ = os.ReadDir(result)
+				t.Logf("Result sub-dirs : %s", child)
+				t.Log(s.String())
+			}
+		})
 		return nil
 	})
 
