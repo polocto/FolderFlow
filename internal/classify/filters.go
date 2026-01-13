@@ -41,3 +41,13 @@ func matchFile(path string, info fs.FileInfo, filters []filter.Filter) (bool, er
 	slog.Debug("File matched", "path", path, "filers", filters)
 	return true, nil
 }
+
+func (c *Classifier) runFilters(path string, info fs.FileInfo, filters []filter.Filter) (bool, error) {
+	var ok bool
+	err := c.safeRun("filters", func() error {
+		var err error
+		ok, err = matchFile(path, info, filters)
+		return err
+	})
+	return ok, err
+}

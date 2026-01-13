@@ -14,6 +14,7 @@
 package classify
 
 import (
+	"fmt"
 	"io/fs"
 	"log/slog"
 )
@@ -25,11 +26,10 @@ func (c *Classifier) regroupFile(srcDir, originalPath, finalFile string, info fs
 	}
 
 	// Note: regroup path is computed from original source path to preserve structure
-	regroupPath, err := destPath(srcDir, c.cfg.Regroup.Path, originalPath, info, c.cfg.Regroup.Strategy)
+	regroupPath, err := c.runStartegy(srcDir, c.cfg.Regroup.Path, originalPath, info, c.cfg.Regroup.Strategy)
 
 	if err != nil {
-		slog.Error("Failed to compute final directory path for regrouping", "file", finalFile, "err", err)
-		return err
+		return fmt.Errorf("failed to compute final directory path for regrouping : file=%s err=%w", finalFile, err)
 	}
 	// Implementation of regrouping logic goes here
 	if c.dryRun {

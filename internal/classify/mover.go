@@ -22,7 +22,6 @@ import (
 	"path/filepath"
 
 	"github.com/polocto/FolderFlow/internal/fsutil"
-	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
 type MoveAction int
@@ -37,23 +36,6 @@ const (
 	MoveFailed
 )
 
-func destPath(sourceDir, destDir, filePath string, info fs.FileInfo, strat strategy.Strategy) (string, error) {
-	finalDir, err := strat.FinalDirPath(sourceDir, destDir, filePath, info)
-	if err != nil {
-		slog.Error("Strategy failed to compute destination path", "strategy", strat.Selector(), "err", err)
-		return "", err
-	}
-
-	if !fsutil.IsSubDirectory(destDir, finalDir) {
-		slog.Error("Computed destination path is outside of destination directory", "computedPath", finalDir, "destDir", destDir)
-		return "", fmt.Errorf("computed destination path is outside of destination directory : computedPath=%s destDir=%s", finalDir, destDir)
-	}
-
-	destFile := filepath.Join(finalDir, filepath.Base(filePath))
-
-	return destFile, nil
-}
-
 func resolveConflict(srcPath, destPath, onConflict string) (string, MoveAction, error) {
 	var action MoveAction
 	switch onConflict {
@@ -63,8 +45,7 @@ func resolveConflict(srcPath, destPath, onConflict string) (string, MoveAction, 
 		action = MoveOverwritten
 	case "rename": // rename
 		if ok, err := fsutil.FilesEqual(srcPath, destPath); err != nil {
-			slog.Error("Failed to compare files for equality", "source", srcPath, "dest", destPath, "err", err)
-			return "", MoveFailed, err
+			return "", MoveFailed, fmt.Errorf("failed to compare files for equality : source=%s dest=%s err=%w", srcPath, destPath, err)
 		} else if ok {
 			slog.Warn("Source and destination files are identical, skipping move", "source", srcPath, "dest", destPath)
 			action = MoveSkippedIdentical
@@ -75,7 +56,6 @@ func resolveConflict(srcPath, destPath, onConflict string) (string, MoveAction, 
 			action = MoveRenamed
 		}
 	default:
-		slog.Error("Unknown conflict resolution strategy", "strategy", onConflict)
 		return "", MoveFailed, fmt.Errorf("unknown conflict resolution strategy: %s", onConflict)
 	}
 
@@ -118,12 +98,11 @@ func executeMove(src, dst string) error {
 		return nil
 	} else if !fsutil.IsCrossDeviceError(err) {
 		// Erreur autre que EXDEV → vraie erreur
-		slog.Error("Failed to rename file", "source", src, "dest", dst, "error", err)
-		return err
+		return fmt.Errorf("failed to rename file : src=%s dst=%s err=%w", src, dst, err)
 	}
 	// Fallback : copy + fsync + remove
 	if err := fsutil.CopyFileAtomic(src, dst); err != nil {
-		return err
+		return fmt.Errorf("failed to copy file : src=%s dst=%s err=%w", src, dst, err)
 	}
 
 	return os.Remove(src)
