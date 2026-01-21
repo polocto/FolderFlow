@@ -18,13 +18,13 @@ import (
 
 func (c *Classifier) safeRun(name string, fn func() error) (err error) {
 	defer func() {
-		if r := recover(); r != nil {
+		if r := recover(); r != nil && c.stats != nil {
 			err = fmt.Errorf("%s panicked: %v", name, r)
 			c.stats.Error(err)
 		}
 	}()
 	err = fn()
-	if err != nil {
+	if err != nil && c.stats != nil {
 		c.stats.Error(err)
 	}
 	return err
