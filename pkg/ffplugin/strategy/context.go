@@ -51,7 +51,7 @@ func NewContextStrategy(file filehandler.Context, srcDir, dstDir string) (Contex
 		path:    file.Path(),
 		relPath: subPath,
 		dstDir:  dstDir,
-		info:    file.Info(),
+		info:    file,
 	}, nil
 }
 

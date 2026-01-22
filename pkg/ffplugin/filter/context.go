@@ -59,7 +59,7 @@ func NewContextFilter(file filehandler.Context) (Context, error) {
 
 	return &ContextFilter{
 		path: file.Path(),
-		info: file.Info(),
+		info: file,
 	}, nil
 }
 

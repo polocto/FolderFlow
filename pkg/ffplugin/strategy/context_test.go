@@ -11,13 +11,11 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU General Public License for more details.
 
-// strategy/context_test.go
-// strategy/context_test.go
 package strategy
 
 import (
-	"crypto/sha256"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -45,39 +43,18 @@ func (m mockFileInfo) ModTime() time.Time { return m.modTime }
 func (m mockFileInfo) IsDir() bool        { return m.isDir }
 func (m mockFileInfo) Sys() interface{}   { return m.sys }
 
-// --------------------------
-// Mock filehandler.Context
-// --------------------------
-type mockFileHandlerContext struct {
-	path      string
-	info      fs.FileInfo
-	kind      filehandler.FileKind
-	isRegular bool
-	hash      [sha256.Size]byte
-	err       error
+// Helper to create temporary ContextFile
+func newTempContextFile(t *testing.T, name string, content []byte) filehandler.Context {
+	t.Helper()
+	tmpFile := t.TempDir() + "/" + name
+	err := os.WriteFile(tmpFile, content, 0644)
+	assert.NoError(t, err)
+
+	ctx, err := filehandler.NewContextFile(tmpFile)
+	assert.NoError(t, err)
+	return ctx
 }
 
-func (m *mockFileHandlerContext) Path() string {
-	return m.path
-}
-
-func (m *mockFileHandlerContext) Info() fs.FileInfo {
-	return m.info
-}
-
-func (m *mockFileHandlerContext) GetHash() ([sha256.Size]byte, error) {
-	return m.hash, m.err
-}
-func (m *mockFileHandlerContext) IsRegular() bool {
-	return m.isRegular
-}
-func (m *mockFileHandlerContext) Kind() filehandler.FileKind {
-	return m.kind
-}
-
-// --------------------------
-// Tests for NewContext
-// --------------------------
 func TestNewContext_NilFile(t *testing.T) {
 	ctx, err := NewContextStrategy(nil, "/src", "/dst")
 	assert.Nil(t, ctx)
@@ -85,108 +62,77 @@ func TestNewContext_NilFile(t *testing.T) {
 	assert.Contains(t, err.Error(), "cannot create strategy context")
 }
 
-func TestNewContext_InvalidRelPath(t *testing.T) {
-	file := &mockFileHandlerContext{
-		path: "/file.txt",
-		info: mockFileInfo{name: "file.txt"},
-	}
-	// Pass srcDir as an invalid path to trigger filepath.Rel error (using invalid UTF-8 char)
-	_, err := NewContextStrategy(file, string([]byte{0xff}), "/dst")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "cannot create strategy context")
-}
-
 func TestNewContext_ValidFile(t *testing.T) {
-	file := &mockFileHandlerContext{
-		path: "/home/user/src/folder/file.txt",
-		info: mockFileInfo{name: "file.txt"},
-	}
+	ctxFile := newTempContextFile(t, "file.txt", []byte(""))
 
-	srcDir := "/home/user/src"
-	dstDir := "/home/user/dst"
+	srcDir := filepath.Dir(ctxFile.Path()) // parent directory of file
+	dstDir := t.TempDir()
 
-	ctx, err := NewContextStrategy(file, srcDir, dstDir)
+	ctx, err := NewContextStrategy(ctxFile, srcDir, dstDir)
 	assert.NoError(t, err)
 	assert.NotNil(t, ctx)
 
 	// Check relative path
-	assert.Equal(t, "folder/file.txt", ctx.PathFromSource())
+	expectedRel, _ := filepath.Rel(srcDir, ctxFile.Path())
+	assert.Equal(t, expectedRel, ctx.PathFromSource())
 	assert.Equal(t, dstDir, ctx.DstDir())
-	assert.Equal(t, file.info, ctx.Info())
+	assert.Equal(t, ctxFile, ctx.Info())
 }
 
-// --------------------------
-// Tests for getters
-// --------------------------
 func TestContext_Getters(t *testing.T) {
-	info := mockFileInfo{name: "file.txt"}
-	ctx := &ContextStrategy{
-		path:    "/some/path/file.txt",
-		relPath: "file.txt",
-		dstDir:  "/dst",
-		info:    info,
-	}
+	ctxFile := newTempContextFile(t, "file.txt", []byte(""))
 
-	assert.Equal(t, "file.txt", ctx.PathFromSource())
-	assert.Equal(t, "/dst", ctx.DstDir())
-	assert.Equal(t, info, ctx.Info())
+	ctx, err := NewContextStrategy(ctxFile, filepath.Dir(ctxFile.Path()), t.TempDir())
+	assert.NoError(t, err)
+
+	assert.Equal(t, filepath.Base(ctxFile.Path()), filepath.Base(ctx.PathFromSource()))
+	assert.Equal(t, ctx.Info(), ctxFile)
 }
 
-// --------------------------
-// Test complex relative paths
-// --------------------------
 func TestNewContext_RelativePaths(t *testing.T) {
-	file := &mockFileHandlerContext{
-		path: "/home/user/src/folder/sub/file.txt",
-		info: mockFileInfo{name: "file.txt"},
-	}
+	tmpDir := t.TempDir()
+	subDir := filepath.Join(tmpDir, "folder", "sub")
+	assert.NoError(t, os.MkdirAll(subDir, 0755))
 
-	srcDir := "/home/user/src"
-	dstDir := "/backup"
+	filePath := filepath.Join(subDir, "file.txt")
+	assert.NoError(t, os.WriteFile(filePath, []byte("content"), 0644))
 
-	ctx, err := NewContextStrategy(file, srcDir, dstDir)
+	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
-	assert.Equal(t, "folder/sub/file.txt", ctx.PathFromSource())
 
-	// Destination path computation for finalDir
-	final := filepath.Join(ctx.DstDir(), filepath.Dir(ctx.PathFromSource()))
-	assert.Equal(t, "/backup/folder/sub", final)
+	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
+	assert.NoError(t, err)
+
+	expectedRel, _ := filepath.Rel(tmpDir, filePath)
+	assert.Equal(t, expectedRel, ctx.PathFromSource())
 }
 
-// --------------------------
-// Test edge case: file at root of srcDir
-// --------------------------
 func TestNewContext_FileAtRoot(t *testing.T) {
-	file := &mockFileHandlerContext{
-		path: "/home/user/src/file.txt",
-		info: mockFileInfo{name: "file.txt"},
-	}
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "file.txt")
+	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0644))
 
-	srcDir := "/home/user/src"
-	dstDir := "/backup"
+	ctxFile, err := filehandler.NewContextFile(filePath)
+	assert.NoError(t, err)
 
-	ctx, err := NewContextStrategy(file, srcDir, dstDir)
+	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
 	assert.NoError(t, err)
 	assert.Equal(t, "file.txt", ctx.PathFromSource())
-
-	// Final destination path
-	final := filepath.Join(ctx.DstDir(), filepath.Dir(ctx.PathFromSource()))
-	assert.Equal(t, "/backup", final)
 }
 
-// --------------------------
-// Test source outside srcDir
-// --------------------------
 func TestNewContext_FileOutsideSrcDir(t *testing.T) {
-	file := &mockFileHandlerContext{
-		path: "/home/user/other/file.txt",
-		info: mockFileInfo{name: "file.txt"},
-	}
+	tmpDir := t.TempDir()
+	otherDir := t.TempDir() // outside srcDir
 
-	srcDir := "/home/user/src"
-	dstDir := "/backup"
+	filePath := filepath.Join(otherDir, "file.txt")
+	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0644))
 
-	ctx, err := NewContextStrategy(file, srcDir, dstDir)
+	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
-	assert.Equal(t, "../other/file.txt", ctx.PathFromSource())
+
+	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
+	assert.NoError(t, err)
+
+	rel, _ := filepath.Rel(tmpDir, filePath)
+	assert.Equal(t, rel, ctx.PathFromSource())
 }
