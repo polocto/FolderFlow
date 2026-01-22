@@ -22,7 +22,7 @@ import (
 // MockFilter is a mock implementation of the Filter interface for testing.
 type MockFilter struct{}
 
-func (m *MockFilter) Match(ctx *ContextFilter) (bool, error) {
+func (m *MockFilter) Match(ctx Context) (bool, error) {
 	return true, nil
 }
 

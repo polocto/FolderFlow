@@ -14,7 +14,6 @@
 package strategy
 
 import (
-	"io/fs"
 	"log/slog"
 	"path/filepath"
 )
@@ -37,9 +36,9 @@ func (s *DateStrategy) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (s *DateStrategy) FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error) {
-	yearMonth := info.ModTime().Format(s.Format)
-	finalDest := filepath.Join(destDir, yearMonth, filepath.Base(srcDir))
+func (s *DateStrategy) FinalDirPath(ctx Context) (string, error) {
+	yearMonth := ctx.Info().ModTime().Format(s.Format)
+	finalDest := filepath.Join(ctx.DstDir(), yearMonth, ctx.Info().Name())
 	return finalDest, nil
 }
 

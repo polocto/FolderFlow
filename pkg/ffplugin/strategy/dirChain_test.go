@@ -17,30 +17,16 @@ import (
 	"io/fs"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-// mockFileInfo creates a mock fs.FileInfo for testing
-type mockFileInfo struct {
-	isDir bool
-	name  string
-}
-
-func (m mockFileInfo) Name() string       { return m.name }
-func (m mockFileInfo) Size() int64        { return 1024 }
-func (m mockFileInfo) Mode() fs.FileMode  { return 0644 }
-func (m mockFileInfo) ModTime() time.Time { return time.Now() }
-func (m mockFileInfo) IsDir() bool        { return m.isDir }
-func (m mockFileInfo) Sys() interface{}   { return nil }
 
 func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 	s := &DirChainStrategy{}
 
 	testCases := []struct {
 		name      string
-		srcDir    string
+		relPath   string
 		destDir   string
 		filePath  string
 		info      fs.FileInfo
@@ -49,34 +35,34 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 	}{
 		{
 			name:      "Basic relative path",
-			srcDir:    filepath.Join("home", "polocto", "Document"),
+			relPath:   filepath.Join("Important", "Famille", "fichier.txt"),
 			destDir:   filepath.Join("srv", "backup"),
 			filePath:  filepath.Join("home", "polocto", "Document", "Important", "Famille", "fichier.txt"),
 			info:      mockFileInfo{isDir: false, name: "fichier.txt"},
-			expected:  filepath.Join("srv", "backup", "Important", "Famille"),
+			expected:  filepath.Join("srv", "backup", "Important", "Famille", "fichier.txt"),
 			shouldErr: false,
 		},
 		{
 			name:      "File in root of srcDir",
-			srcDir:    filepath.Join("home", "polocto", "Document"),
+			relPath:   "fichier.txt",
 			destDir:   filepath.Join("srv", "backup"),
 			filePath:  filepath.Join("home", "polocto", "Document", "fichier.txt"),
 			info:      mockFileInfo{isDir: false, name: "fichier.txt"},
-			expected:  filepath.Join("srv", "backup"),
+			expected:  filepath.Join("srv", "backup", "fichier.txt"),
 			shouldErr: false,
 		},
 		{
 			name:      "Path with spaces",
-			srcDir:    filepath.Join("home", "polocto", "My Documents"),
+			relPath:   filepath.Join("Important Project", "File with spaces.txt"),
 			destDir:   filepath.Join("srv", "backup"),
 			filePath:  filepath.Join("home", "polocto", "My Documents", "Important Project", "File with spaces.txt"),
 			info:      mockFileInfo{isDir: false, name: "File with spaces.txt"},
-			expected:  filepath.Join("srv", "backup", "Important Project"),
+			expected:  filepath.Join("srv", "backup", "Important Project", "File with spaces.txt"),
 			shouldErr: false,
 		},
 		{
 			name:      "Invalid path (not a subdirectory)",
-			srcDir:    filepath.Join("home", "polocto", "Document"),
+			relPath:   filepath.Join("..", "..", "..", "other", "path", "file.txt"),
 			destDir:   filepath.Join("srv", "backup"),
 			filePath:  filepath.Join("other", "path", "file.txt"),
 			info:      mockFileInfo{isDir: false, name: "file.txt"},
@@ -85,7 +71,7 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 		},
 		{
 			name:      "Directory instead of file",
-			srcDir:    filepath.Join("home", "polocto", "Document"),
+			relPath:   "Folder",
 			destDir:   filepath.Join("srv", "backup"),
 			filePath:  filepath.Join("home", "polocto", "Document", "Folder"),
 			info:      mockFileInfo{isDir: true, name: "Folder"},
@@ -96,7 +82,12 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			dest, err := s.FinalDirPath(tc.srcDir, tc.destDir, tc.filePath, tc.info)
+			fileCtx := &ContextStrategy{
+				relPath: tc.relPath,
+				dstDir:  tc.destDir,
+				info:    tc.info,
+			}
+			dest, err := s.FinalDirPath(fileCtx)
 			if tc.shouldErr {
 				assert.Error(t, err, "Expected an error for %s", tc.name)
 			} else {

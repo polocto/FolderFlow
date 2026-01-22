@@ -27,7 +27,7 @@ type ExtensionFilter struct {
 	Extensions []string `yaml:"extensions"`
 }
 
-func (f *ExtensionFilter) Match(ctx *ContextFilter) (bool, error) {
+func (f *ExtensionFilter) Match(ctx Context) (bool, error) {
 
 	if ctx == nil {
 		return false, fmt.Errorf("context is nil")

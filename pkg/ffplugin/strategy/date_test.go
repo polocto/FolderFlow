@@ -29,7 +29,12 @@ func TestDateStrategy(t *testing.T) {
 	require.NoError(t, os.WriteFile(file, []byte("x"), 0644))
 	info, _ := os.Stat(file)
 
-	path, err := s.FinalDirPath("src", "dest", file, info)
+	fileCtx := &ContextStrategy{
+		relPath: filepath.Join("Important", "Famille", "fichier.txt"),
+		dstDir:  filepath.Join("srv", "backup"),
+		info:    info,
+	}
+	path, err := s.FinalDirPath(fileCtx)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

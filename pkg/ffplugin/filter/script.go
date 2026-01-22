@@ -25,7 +25,7 @@ func (sf *ScriptFilter) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (sf *ScriptFilter) Match(ctx *ContextFilter) (bool, error) {
+func (sf *ScriptFilter) Match(ctx Context) (bool, error) {
 	// ... (script execution logic)
 	return true, nil
 }

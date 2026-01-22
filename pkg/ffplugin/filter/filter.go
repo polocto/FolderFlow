@@ -20,7 +20,7 @@ import (
 // Filter defines the interface for custom file filters.
 type Filter interface {
 	// Match performs the filter's logic, returning true if a correspondence has been found
-	Match(ctx *ContextFilter) (bool, error)
+	Match(ctx Context) (bool, error)
 	// Selector returns a unique identifier for the strategy (e.g., "extension", "date")
 	Selector() string
 	// LoadConfig allows the filter to be configured from the YAML config
