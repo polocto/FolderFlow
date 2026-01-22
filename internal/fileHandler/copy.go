@@ -21,13 +21,13 @@ import (
 	"path/filepath"
 )
 
-func CopyFileAtomic(file Context, dst string) error {
+func CopyFileAtomic(file Context, dst string) (Context, error) {
 	if file == nil {
-		return fmt.Errorf("cannot copy: %w", ErrContextIsNil)
+		return nil, fmt.Errorf("cannot copy: %w", ErrContextIsNil)
 	}
 	in, err := os.Open(file.Path())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		if cerr := in.Close(); cerr != nil {
@@ -37,7 +37,7 @@ func CopyFileAtomic(file Context, dst string) error {
 
 	tmpFile, err := os.CreateTemp(filepath.Dir(dst), filepath.Base(dst)+".tmp-*")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	tmpPath := tmpFile.Name()
 
@@ -54,11 +54,11 @@ func CopyFileAtomic(file Context, dst string) error {
 	}()
 
 	if _, err := io.Copy(tmpFile, in); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := tmpFile.Sync(); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := replaceFile(tmpPath, dst); err != nil {
@@ -69,8 +69,8 @@ func CopyFileAtomic(file Context, dst string) error {
 				"error", rmErr,
 			)
 		}
-		return err
+		return nil, err
 	}
 
-	return nil
+	return NewContextFile(dst)
 }

@@ -16,11 +16,34 @@ package filehandler
 import (
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
 )
+
+func Equal(file1, file2 Context) (bool, error) {
+	if file1 == nil || file2 == nil {
+		return false, ErrContextIsNil
+	}
+	if file1.Size() != file2.Size() {
+		return false, nil
+	}
+	hash1, err := file1.GetHash()
+	if err != nil {
+		return false, fmt.Errorf("failed to get hash of the first file: %w", err)
+	}
+	hash2, err := file2.GetHash()
+	if err != nil {
+		return false, fmt.Errorf("failed to get hash of the second file: %w", err)
+	}
+
+	if hash1 != hash2 {
+		return false, nil
+	}
+	return true, nil
+}
 
 func ListDuplicates(files []Context) ([][]Context, error) {
 	bySize := make(map[int64][]Context)
@@ -30,7 +53,7 @@ func ListDuplicates(files []Context) ([][]Context, error) {
 		if f == nil || f.Kind() != KindRegular {
 			continue
 		}
-		bySize[f.Info().Size()] = append(bySize[f.Info().Size()], f)
+		bySize[f.Size()] = append(bySize[f.Size()], f)
 	}
 
 	duplicateGroups := make([][]Context, 0, len(files)/2)

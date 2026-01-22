@@ -23,6 +23,6 @@ func Replace(src Context, dstPath string) error {
 	if err := replaceFile(src.Path(), dstPath); err != nil {
 		return fmt.Errorf("failed to replace file: src=%s dst=%s err=%w", src.Path(), dstPath, err)
 	}
-
+	src.setPath(dstPath)
 	return nil
 }

@@ -27,7 +27,7 @@ func Hardlink(src Context, dstPath string) (Context, error) {
 		return nil, fmt.Errorf("failed to create hard link from %q to %q: %w", src.Path(), dstPath, err)
 	}
 
-	return NewContext(dstPath)
+	return NewContextFile(dstPath)
 }
 
 func Symlink(src Context, dstPath string) (Context, error) {
@@ -39,5 +39,5 @@ func Symlink(src Context, dstPath string) (Context, error) {
 		return nil, fmt.Errorf("failed to create symbolic link from %q to %q: %w", src.Path(), dstPath, err)
 	}
 
-	return NewContext(dstPath)
+	return NewContextFile(dstPath)
 }

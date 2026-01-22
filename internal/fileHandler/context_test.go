@@ -51,29 +51,26 @@ func helloWorld() (str string) {
 func TestNewContextExistingFile(t *testing.T) {
 	filePath := tempFile(t, t.TempDir(), "file.txt", []byte(helloWorld()))
 
-	file, err := filehandler.NewContext(filePath)
+	file, err := filehandler.NewContextFile(filePath)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if file == nil {
 		t.Fatalf("unexpected error: %v", filehandler.ErrContextIsNil)
 	}
-	if file.Info() == nil {
-		t.Fatal("expected file.Info to be set, got nil")
-	}
 
 	// Validate Info fields
-	if file.Info().Name() != "file.txt" {
-		t.Fatalf("expected filename %q, got %q", "file.txt", file.Info().Name())
+	if file.Name() != "file.txt" {
+		t.Fatalf("expected filename %q, got %q", "file.txt", file.Name())
 	}
 
 	expectedSize := int64(len(helloWorld()))
-	if file.Info().Size() != expectedSize {
-		t.Fatalf("expected size %d, got %d", expectedSize, file.Info().Size())
+	if file.Size() != expectedSize {
+		t.Fatalf("expected size %d, got %d", expectedSize, file.Size())
 	}
 
-	if !file.Info().Mode().IsRegular() {
-		t.Fatalf("expected regular file, got mode %v", file.Info().Mode())
+	if !file.Mode().IsRegular() {
+		t.Fatalf("expected regular file, got mode %v", file.Mode())
 	}
 
 }
@@ -81,12 +78,12 @@ func TestNewContextExistingFile(t *testing.T) {
 func TestNewContextNoneExistingFile(t *testing.T) {
 	filePath := filepath.Join("tmp", "testing", "folderflow", "new")
 
-	file, err := filehandler.NewContext(filePath)
+	file, err := filehandler.NewContextFile(filePath)
 	if err == nil {
 		t.Fatalf("expected error but nil")
 	}
 	if file != nil {
-		t.Fatalf("unexpected context: %s", file.Info().Name())
+		t.Fatalf("unexpected context: %s", file.Name())
 	}
 
 	if !errors.Is(err, fs.ErrNotExist) {
@@ -110,7 +107,7 @@ func TestNewContextExistingFileWithWrongPermission(t *testing.T) {
 		_ = os.Chmod(dir, 0700) // restore for cleanup
 	})
 
-	file, err := filehandler.NewContext(filePath)
+	file, err := filehandler.NewContextFile(filePath)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

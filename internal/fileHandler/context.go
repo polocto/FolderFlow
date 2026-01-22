@@ -35,23 +35,24 @@ const (
 
 type Context interface {
 	Path() string
-	Info() fs.FileInfo
+	setPath(newPath string)
 	GetHash() ([sha256.Size]byte, error)
 	IsRegular() bool
 	Kind() FileKind
+	fs.FileInfo
 }
 
 type ContextFile struct {
-	absPath string      // File's path
-	info    fs.FileInfo // File's informations
-	kind    FileKind
-	hash    [sha256.Size]byte
-	hasHash bool
+	absPath     string // File's path
+	fs.FileInfo        // File's informations
+	kind        FileKind
+	hash        [sha256.Size]byte
+	hasHash     bool
 }
 
 // NewContext creates a new Context for the given path.
 // It returns an error if the path does not exist or cannot be stat-ed.
-func NewContext(filePath string) (*ContextFile, error) {
+func NewContextFile(filePath string) (Context, error) {
 	info, err := os.Lstat(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to stat the file %s: err=%w", filePath, err)
@@ -73,9 +74,9 @@ func NewContext(filePath string) (*ContextFile, error) {
 	}
 
 	return &ContextFile{
-		absPath: absPath,
-		info:    info,
-		kind:    kind,
+		absPath:  absPath,
+		FileInfo: info,
+		kind:     kind,
 	}, nil
 }
 
@@ -83,8 +84,8 @@ func (c *ContextFile) Path() string {
 	return c.absPath
 }
 
-func (c *ContextFile) Info() fs.FileInfo {
-	return c.info
+func (c *ContextFile) setPath(newPath string) {
+	c.absPath = newPath
 }
 
 func (c *ContextFile) GetHash() ([sha256.Size]byte, error) {
@@ -114,15 +115,11 @@ func (c *ContextFile) GetHash() ([sha256.Size]byte, error) {
 }
 
 func (c *ContextFile) IsRegular() bool {
-	return c.Info().Mode().IsRegular()
-}
-
-func (c *ContextFile) IsDir() bool {
-	return c.info.IsDir()
+	return c.Mode().IsRegular()
 }
 
 func (c *ContextFile) IsSymLink() bool {
-	return c.info.Mode()&os.ModeSymlink != 0
+	return c.Mode()&os.ModeSymlink != 0
 }
 
 func (c *ContextFile) IsSubDirectory(parent string) bool {
