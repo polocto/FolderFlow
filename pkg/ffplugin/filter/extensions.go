@@ -15,7 +15,6 @@ package filter
 
 import (
 	"fmt"
-	"io/fs"
 	"log/slog"
 	"path/filepath"
 	"strings"
@@ -28,11 +27,15 @@ type ExtensionFilter struct {
 	Extensions []string `yaml:"extensions"`
 }
 
-func (f *ExtensionFilter) Match(path string, info fs.FileInfo) (bool, error) {
-	ext := strings.ToLower(filepath.Ext(path))
+func (f *ExtensionFilter) Match(ctx *ContextFilter) (bool, error) {
+
+	if ctx == nil {
+		return false, fmt.Errorf("context is nil")
+	}
+
+	ext := strings.ToLower(filepath.Ext(ctx.Info().Name()))
 	for _, allowedExt := range f.Extensions {
 		if ext == strings.ToLower(allowedExt) {
-			slog.Debug("Match found", "file's path", path, "matched extension", allowedExt)
 			return true, nil
 		}
 	}

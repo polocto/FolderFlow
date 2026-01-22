@@ -13,10 +13,7 @@
 
 package filter
 
-import (
-	"io/fs"
-	// Go standard library
-)
+// Go standard library
 
 // ScriptFilter runs an external script to filter files.
 type ScriptFilter struct {
@@ -28,7 +25,7 @@ func (sf *ScriptFilter) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (sf *ScriptFilter) Match(path string, info fs.FileInfo) (bool, error) {
+func (sf *ScriptFilter) Match(ctx *ContextFilter) (bool, error) {
 	// ... (script execution logic)
 	return true, nil
 }

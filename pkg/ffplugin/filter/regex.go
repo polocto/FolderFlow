@@ -15,9 +15,7 @@ package filter
 
 import (
 	"fmt"
-	"io/fs"
 	"log/slog"
-	"path/filepath"
 	"regexp"
 
 	"gopkg.in/yaml.v3"
@@ -29,8 +27,11 @@ type RegexFilter struct {
 	compiledRe []*regexp.Regexp
 }
 
-func (f *RegexFilter) Match(path string, info fs.FileInfo) (bool, error) {
-	basename := filepath.Base(path)
+func (f *RegexFilter) Match(ctx *ContextFilter) (bool, error) {
+	if ctx == nil {
+		return false, fmt.Errorf("context is nil")
+	}
+	basename := ctx.Info().Name()
 	for i, re := range f.compiledRe {
 		if re.MatchString(basename) {
 			slog.Debug("Match found", "basename", basename, "pattern", f.Patterns[i])

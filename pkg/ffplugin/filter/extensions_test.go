@@ -28,7 +28,7 @@ func TestExtensionFilter(t *testing.T) {
 	require.NoError(t, os.WriteFile(file, []byte("x"), 0644))
 	info, _ := os.Stat(file)
 
-	ok, err := f.Match(file, info)
+	ok, err := f.Match(&ContextFilter{file, info})
 	if err != nil || !ok {
 		t.Fatalf("expected extension to match")
 	}
