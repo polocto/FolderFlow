@@ -25,7 +25,6 @@ import (
 
 	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
-	"github.com/polocto/FolderFlow/internal/fsutil"
 	"github.com/polocto/FolderFlow/internal/stats"
 )
 
@@ -55,7 +54,7 @@ func TestMain(m *testing.M) {
 
 func mustCopyDir(t *testing.T, src, dst string) {
 	t.Helper()
-	if err := fsutil.CopyDir(src, dst); err != nil {
+	if err := CopyDir(src, dst); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
 }
@@ -130,7 +129,7 @@ func walkDir(root string) ([]FileInfo, error) {
 		}
 		if !info.IsDir() {
 			relPath, _ := filepath.Rel(root, path)
-			hash, err := fsutil.FileHash(path, nil)
+			hash, err := FileHash(path, nil)
 			files = append(files, FileInfo{
 				Path:      relPath,
 				Name:      info.Name(),

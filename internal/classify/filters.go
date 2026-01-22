@@ -14,39 +14,45 @@
 package classify
 
 import (
-	"io/fs"
 	"log/slog"
 
+	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 )
 
 // matchFile checks if a file matches all the rules in DestDir.
-func matchFile(path string, info fs.FileInfo, filters []filter.Filter) (bool, error) {
+func matchFile(file filehandler.Context, filters []filter.Filter) (bool, error) {
 	// If no filters are provided, match all files
 	if len(filters) == 0 {
 		return true, nil
 	}
 
+	ctx, err := filter.NewContextFilter(file)
+
+	if err != nil {
+		return false, err
+	}
+
 	// Run all filters
 	for _, f := range filters {
-		matched, err := f.Match(path, info)
+		matched, err := f.Match(ctx)
 		if err != nil {
-			slog.Error("Filter error", "filter", f.Selector(), "path", path, "err", err)
+			slog.Error("Filter error", "filter", f.Selector(), "path", file.Path(), "err", err)
 			return false, err
 		}
 		if !matched {
 			return false, nil
 		}
 	}
-	slog.Debug("File matched", "path", path, "filers", filters)
+	slog.Debug("File matched", "path", file.Path(), "filers", filters)
 	return true, nil
 }
 
-func (c *Classifier) runFilters(path string, info fs.FileInfo, filters []filter.Filter) (bool, error) {
+func (c *Classifier) runFilters(path filehandler.Context, filters []filter.Filter) (bool, error) {
 	var ok bool
 	err := c.safeRun("filters", func() error {
 		var err error
-		ok, err = matchFile(path, info, filters)
+		ok, err = matchFile(path, filters)
 		return err
 	})
 	return ok, err

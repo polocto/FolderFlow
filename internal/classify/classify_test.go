@@ -84,7 +84,7 @@ func TestProcessFile_NoMatch(t *testing.T) {
 		},
 	}, false)
 
-	err := c.processFile(tmp, src, mockFileInfo{name: "a.txt"})
+	err := c.processFile(tmp, src)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestProcessFile_MoveError(t *testing.T) {
 		},
 	}, false)
 
-	err := c.processFile(tmp, src, mockFileInfo{name: "a.txt"})
+	err := c.processFile(tmp, src)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -155,7 +155,7 @@ func TestProcessFile_RegroupEnabled(t *testing.T) {
 		},
 	}, false)
 
-	if err := c.processFile(tmp, src, mockFileInfo{name: "a.txt"}); err != nil {
+	if err := c.processFile(tmp, src); err != nil {
 		t.Fatal(err)
 	}
 }

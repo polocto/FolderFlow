@@ -11,12 +11,30 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU General Public License for more details.
 
-//go:build !windows
+package classify
 
-package fsutil
+import (
+	"os"
+	"path/filepath"
+	"testing"
 
-import "os"
+	"github.com/stretchr/testify/require"
+)
 
-func ReplaceFile(src, dst string) error {
-	return os.Rename(src, dst)
+func tempFile(t *testing.T, dir, name string, content []byte) string {
+	t.Helper()
+
+	path := filepath.Join(dir, name)
+
+	require.NoError(t, os.WriteFile(path, content, 0644))
+
+	return path
+}
+
+func tempSubDir(t *testing.T, parent, name string) string {
+	t.Helper()
+
+	path := filepath.Join(parent, name)
+	require.NoError(t, os.MkdirAll(path, 0755))
+	return path
 }

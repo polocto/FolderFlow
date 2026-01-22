@@ -15,27 +15,39 @@ package classify
 
 import (
 	"fmt"
-	"io/fs"
 	"log/slog"
+	"os"
+	"path/filepath"
+
+	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 )
 
-func (c *Classifier) regroupFile(srcDir, originalPath, finalFile string, info fs.FileInfo) error {
-
-	if c.cfg.Regroup == nil {
-		return nil
+func execute(source filehandler.Context, target, mode string) (file filehandler.Context, err error) {
+	if source == nil {
+		return nil, fmt.Errorf("failed to regroup non existing file: %w", filehandler.ErrContextIsNil)
 	}
-
-	// Note: regroup path is computed from original source path to preserve structure
-	regroupPath, err := c.runStartegy(srcDir, c.cfg.Regroup.Path, originalPath, info, c.cfg.Regroup.Strategy)
-
-	if err != nil {
-		return fmt.Errorf("failed to compute final directory path for regrouping : file=%s err=%w", finalFile, err)
+	// Actual regrouping logic (symlink, hardlink, copy) would be implemented here
+	// Ensure the destination directory exists
+	if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+		return nil, err
 	}
-	// Implementation of regrouping logic goes here
-	if c.dryRun {
-		slog.Debug("Dry run: would regroup file", "originalPath", finalFile, "to", regroupPath, "mode", c.cfg.Regroup.Mode)
-		return nil
+	switch mode {
+	case "symlink":
+		file, err = filehandler.Symlink(source, target)
+	case "hardlink":
+		file, err = filehandler.Hardlink(source, target)
+	case "copy":
+		file, err = filehandler.CopyFileAtomic(source, target)
+	default:
+		return nil, ErrInvalidRegroupMode(mode)
 	}
+	slog.Debug(
+		"File regrouped successfully",
+		"source", source.Path(),
+		"target", file.Path(),
+		"mode", mode,
+	)
 
-	return executeRegroup(finalFile, regroupPath, c.cfg.Regroup.Mode)
+	return file, err
+
 }

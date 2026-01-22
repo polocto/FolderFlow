@@ -1,144 +1,128 @@
-// Copyright (c) 2026 Paul Sade.
-//
-// This file is part of the FolderFlow project.
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 3,
-// as published by the Free Software Foundation (see the LICENSE file).
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-
 package classify
 
 import (
 	"errors"
+	"os"
 	"testing"
 
+	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
+	"github.com/stretchr/testify/require"
 )
 
 // --------------------
-// matchFile tests
+// mockFilter for testing
 // --------------------
-//
+type mockFilter struct {
+	match  bool
+	err    error
+	called *int
+}
 
+func (m *mockFilter) Match(ctx filter.Context) (bool, error) {
+	if m.called != nil {
+		*m.called++
+	}
+	return m.match, m.err
+}
+
+func (m *mockFilter) Selector() string                        { return "mock" }
+func (m *mockFilter) LoadConfig(map[string]interface{}) error { return nil }
+
+// --------------------
+// Test helpers
+// --------------------
+func createContextFile(t *testing.T, content []byte) filehandler.Context {
+	tmp := t.TempDir()
+	file := tmp + "/file.txt"
+	err := os.WriteFile(file, content, 0644)
+	require.NoError(t, err)
+
+	ctx, err := filehandler.NewContextFile(file)
+	require.NoError(t, err)
+	return ctx
+}
+
+// --------------------
+// Tests
+// --------------------
 func TestMatchFile_NoFilters(t *testing.T) {
-	info := mockFileInfo{name: "file.txt"}
+	ctx := createContextFile(t, []byte("Hello"))
 
-	ok, err := matchFile("file.txt", info, nil)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !ok {
-		t.Fatal("expected file to match when no filters are provided")
-	}
+	ok, err := matchFile(ctx, nil)
+	require.NoError(t, err)
+	require.True(t, ok)
 }
 
 func TestMatchFile_FilterRejects(t *testing.T) {
-	info := mockFileInfo{name: "file.txt"}
+	ctx := createContextFile(t, []byte("Hello"))
 
-	filters := []filter.Filter{
-		&mockFilter{match: false},
-	}
-
-	ok, err := matchFile("file.txt", info, filters)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if ok {
-		t.Fatal("expected file to be rejected")
-	}
+	mf := &mockFilter{match: false}
+	ok, err := matchFile(ctx, []filter.Filter{mf})
+	require.NoError(t, err)
+	require.False(t, ok)
 }
 
 func TestMatchFile_SingleFilterMatch(t *testing.T) {
-	info := mockFileInfo{name: "file.txt"}
-	f := &mockFilter{match: true, err: nil}
+	ctx := createContextFile(t, []byte("Hello"))
 
-	ok, err := matchFile("file.txt", info, []filter.Filter{f})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !ok {
-		t.Fatal("expected file to match")
-	}
+	f := &mockFilter{match: true}
+	ok, err := matchFile(ctx, []filter.Filter{f})
+	require.NoError(t, err)
+	require.True(t, ok)
 }
 
 func TestMatchFile_MultipleFilters_AllMatch(t *testing.T) {
-	info := mockFileInfo{name: "file.txt"}
+	ctx := createContextFile(t, []byte("Hello"))
+
 	filters := []filter.Filter{
 		&mockFilter{match: true},
 		&mockFilter{match: true},
 	}
-
-	ok, err := matchFile("file.txt", info, filters)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !ok {
-		t.Fatal("expected all filters to match")
-	}
+	ok, err := matchFile(ctx, filters)
+	require.NoError(t, err)
+	require.True(t, ok)
 }
 
 func TestMatchFile_StopsOnFirstNoMatch(t *testing.T) {
-	called := 0
+	ctx := createContextFile(t, []byte("Hello"))
 
-	info := mockFileInfo{name: "file.txt"}
+	var called1, called2 int
 	filters := []filter.Filter{
-		&mockFilter{match: false},
-		&mockFilter{match: true, called: &called},
+		&mockFilter{match: false, called: &called1},
+		&mockFilter{match: true, called: &called2},
 	}
 
-	ok, err := matchFile("file.txt", info, filters)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if ok {
-		t.Fatal("expected file to not match")
-	}
-	if called != 0 {
-		t.Fatal("expected second filter not to be called")
-	}
+	ok, err := matchFile(ctx, filters)
+	require.NoError(t, err)
+	require.False(t, ok)
+	require.Equal(t, 1, called1)
+	require.Equal(t, 0, called2)
 }
 
 func TestMatchFile_FilterError(t *testing.T) {
+	ctx := createContextFile(t, []byte("Hello"))
+
 	expectedErr := errors.New("filter error")
-	info := mockFileInfo{name: "file.txt"}
+	f := &mockFilter{err: expectedErr}
 
-	f := &mockFilter{name: "err", err: expectedErr}
-
-	ok, err := matchFile("file.txt", info, []filter.Filter{f})
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	if !errors.Is(err, expectedErr) {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if ok {
-		t.Fatal("expected match to be false on error")
-	}
+	ok, err := matchFile(ctx, []filter.Filter{f})
+	require.ErrorIs(t, err, expectedErr)
+	require.False(t, ok)
 }
 
 func TestMatchFile_StopsOnError(t *testing.T) {
-	called := 0
+	ctx := createContextFile(t, []byte("Hello"))
+
 	expectedErr := errors.New("boom")
-	info := mockFileInfo{name: "file.txt"}
-
+	var called int
 	filters := []filter.Filter{
-		&mockFilter{name: "f1", err: expectedErr},
-		&mockFilter{name: "f2", match: true, called: &called},
+		&mockFilter{err: expectedErr},
+		&mockFilter{match: true, called: &called},
 	}
 
-	ok, err := matchFile("file.txt", info, filters)
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	if ok {
-		t.Fatal("expected match to be false")
-	}
-	if called != 0 {
-		t.Fatal("expected second filter not to be called")
-	}
+	ok, err := matchFile(ctx, filters)
+	require.ErrorIs(t, err, expectedErr)
+	require.False(t, ok)
+	require.Equal(t, 0, called)
 }

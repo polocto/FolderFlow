@@ -15,31 +15,31 @@ package classify
 
 import (
 	"fmt"
-	"io/fs"
-	"path/filepath"
 
+	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 	"github.com/polocto/FolderFlow/internal/fsutil"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
-func destPath(sourceDir, destDir, filePath string, info fs.FileInfo, strat strategy.Strategy) (string, error) {
-	finalDir, err := strat.FinalDirPath(sourceDir, destDir, filePath, info)
+func destPath(file filehandler.Context, sourceDir, destDir string, strat strategy.Strategy) (string, error) {
+
+	ctx, err := strategy.NewContextStrategy(file, sourceDir, destDir)
+
+	finalDst, err := strat.FinalDirPath(ctx)
 	if err != nil {
 		return "", fmt.Errorf("strategy failed to compute destination path : strategy=%s err=%w", strat.Selector(), err)
 	}
 
-	if !fsutil.IsSubDirectory(destDir, finalDir) {
-		return "", fmt.Errorf("computed destination path is outside of destination directory : computedPath=%s destDir=%s", finalDir, destDir)
+	if !fsutil.IsSubDirectory(destDir, finalDst) {
+		return "", fmt.Errorf("computed destination path is outside of destination directory : computedPath=%s destDir=%s", finalDst, destDir)
 	}
 
-	destFile := filepath.Join(finalDir, filepath.Base(filePath))
-
-	return destFile, nil
+	return finalDst, nil
 }
 
-func (c *Classifier) runStartegy(sourceDir, destDir, filePath string, info fs.FileInfo, strat strategy.Strategy) (finalDst string, err error) {
+func (c *Classifier) runStartegy(file filehandler.Context, sourceDir, destDir string, strat strategy.Strategy) (finalDst string, err error) {
 	err = c.safeRun("strategy", func() (err error) {
-		finalDst, err = destPath(sourceDir, destDir, filePath, info, strat)
+		finalDst, err = destPath(file, sourceDir, destDir, strat)
 		return err
 	})
 	return finalDst, err

@@ -34,25 +34,21 @@ func (c *Classifier) processSourceDir(sourceDir string) error {
 
 		if d.IsDir() {
 			return nil // Continuer until processing a file
+		} else {
+			info, err := d.Info()
+			if err != nil {
+				return fmt.Errorf("unable to read a file info: path=%s err=%w", filePath, err)
+			}
+			c.stats.FileSeen(info.Size())
 		}
-
-		info, err := d.Info()
-
-		if err != nil {
-			c.stats.Error(err)
-			return fmt.Errorf("failed to get file's info : err=%w", err)
-		}
-
-		// Add file checked
-		c.stats.FileSeen(info.Size())
 		wp.Add()
 
-		go func(sourceDir, filePath string, info fs.FileInfo) {
+		go func(sourceDir, filePath string) {
 			defer wp.Done()
-			if err := c.safeRun("processFile", func() error { return c.processFile(sourceDir, filePath, info) }); err != nil {
+			if err := c.safeRun("processFile", func() error { return c.processFile(sourceDir, filePath) }); err != nil {
 				wp.ReportError(err)
 			}
-		}(sourceDir, filePath, info)
+		}(sourceDir, filePath)
 
 		return nil
 	})
