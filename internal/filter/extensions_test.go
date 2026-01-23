@@ -13,29 +13,15 @@
 
 package filter
 
-// Go standard library
+import (
+	"testing"
+)
 
-// ScriptFilter runs an external script to filter files.
-type ScriptFilter struct {
-	ScriptPath string `yaml:"scriptPath"`
-}
+func TestExtensionFilter(t *testing.T) {
+	f := &ExtensionFilter{Extensions: []string{".txt"}}
 
-func (sf *ScriptFilter) LoadConfig(config map[string]interface{}) error {
-	// No configuration needed for ScriptFilter
-	return nil
-}
-
-func (sf *ScriptFilter) Match(ctx Context) (bool, error) {
-	// ... (script execution logic)
-	return true, nil
-}
-
-func (sf *ScriptFilter) Selector() string {
-	return "script"
-}
-
-func init() {
-	RegisterFilter("script", func() Filter {
-		return &ScriptFilter{}
-	})
+	ok, err := f.Match(&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "a.txt"}})
+	if err != nil || !ok {
+		t.Fatalf("expected extension to match")
+	}
 }

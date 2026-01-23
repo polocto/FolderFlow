@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,7 +28,7 @@ type ExtensionFilter struct {
 	Extensions []string `yaml:"extensions"`
 }
 
-func (f *ExtensionFilter) Match(ctx Context) (bool, error) {
+func (f *ExtensionFilter) Match(ctx filter.Context) (bool, error) {
 	if ctx == nil {
 		return false, fmt.Errorf("context is nil")
 	}
@@ -70,7 +71,7 @@ func (f *ExtensionFilter) LoadConfig(config map[string]interface{}) error {
 }
 
 func init() {
-	RegisterFilter("extensions", func() Filter {
+	filter.RegisterFilter("extensions", func() filter.Filter {
 		return &ExtensionFilter{}
 	})
 }

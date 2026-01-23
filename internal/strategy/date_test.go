@@ -29,10 +29,10 @@ func TestDateStrategy(t *testing.T) {
 	require.NoError(t, os.WriteFile(file, []byte("x"), 0o644))
 	info, _ := os.Stat(file)
 
-	fileCtx := &ContextStrategy{
-		relPath: filepath.Join("Important", "Famille", "fichier.txt"),
-		dstDir:  filepath.Join("srv", "backup"),
-		info:    info,
+	fileCtx := &mockContext{
+		pathFromSource:       filepath.Join("Important", "Famille", "fichier.txt"),
+		destinationDirectory: filepath.Join("srv", "backup"),
+		info:                 info,
 	}
 	path, err := s.FinalDirPath(fileCtx)
 	if err != nil {

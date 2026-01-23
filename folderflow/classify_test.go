@@ -26,6 +26,9 @@ import (
 	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
 	"github.com/polocto/FolderFlow/internal/stats"
+
+	_ "github.com/polocto/FolderFlow/internal/filter"
+	_ "github.com/polocto/FolderFlow/internal/strategy"
 )
 
 // FileInfo contient les informations nécessaires pour comparer deux fichiers

@@ -15,27 +15,9 @@
 package filter
 
 import (
-	"io/fs"
 	"regexp"
 	"testing"
-	"time"
 )
-
-// MockFileInfo is a mock implementation of fs.FileInfo for testing.
-type MockFileInfo struct {
-	NameVal    string
-	SizeVal    int64
-	ModeVal    fs.FileMode
-	ModTimeVal time.Time
-	IsDirVal   bool
-}
-
-func (m *MockFileInfo) Name() string       { return m.NameVal }
-func (m *MockFileInfo) Size() int64        { return m.SizeVal }
-func (m *MockFileInfo) Mode() fs.FileMode  { return m.ModeVal }
-func (m *MockFileInfo) ModTime() time.Time { return m.ModTimeVal }
-func (m *MockFileInfo) IsDir() bool        { return m.IsDirVal }
-func (m *MockFileInfo) Sys() interface{}   { return nil }
 
 func TestRegexFilterMatch(t *testing.T) {
 	// Create a RegexFilter with a pattern that matches "test.txt"
@@ -45,7 +27,7 @@ func TestRegexFilterMatch(t *testing.T) {
 	}
 
 	// Test: Match a file that matches the pattern
-	match, err := filter.Match(&ContextFilter{"test.txt", &MockFileInfo{NameVal: "test.txt"}})
+	match, err := filter.Match(&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.txt"}})
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
@@ -54,7 +36,7 @@ func TestRegexFilterMatch(t *testing.T) {
 	}
 
 	// Test: Match a file that does not match the pattern
-	match, err = filter.Match(&ContextFilter{"test.md", &MockFileInfo{NameVal: "test.md"}})
+	match, err = filter.Match(&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.md"}})
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
@@ -63,7 +45,7 @@ func TestRegexFilterMatch(t *testing.T) {
 	}
 
 	// Test: Match an empty filename
-	match, err = filter.Match(&ContextFilter{"", &MockFileInfo{}})
+	match, err = filter.Match(&mockContext{nil, &mockFileInfo{}})
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
@@ -77,7 +59,7 @@ func TestRegexFilterMatch(t *testing.T) {
 		compiledRe: []*regexp.Regexp{},
 	}
 	match, err = filterEmpty.Match(
-		&ContextFilter{"anyfile.txt", &MockFileInfo{NameVal: "anyfile.txt"}},
+		&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "anyfile.txt"}},
 	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
@@ -95,7 +77,7 @@ func TestRegexFilterMatch(t *testing.T) {
 		},
 	}
 	match, err = filterMultiple.Match(
-		&ContextFilter{"example.md", &MockFileInfo{NameVal: "example.md"}},
+		&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "example.md"}},
 	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
@@ -104,7 +86,7 @@ func TestRegexFilterMatch(t *testing.T) {
 		t.Error("Match should return true for 'example.md'")
 	}
 	match, err = filterMultiple.Match(
-		&ContextFilter{"other.doc", &MockFileInfo{NameVal: "other.doc"}},
+		&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "other.doc"}},
 	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)

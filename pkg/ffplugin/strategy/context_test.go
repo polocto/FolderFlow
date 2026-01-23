@@ -14,34 +14,13 @@
 package strategy
 
 import (
-	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 	"github.com/stretchr/testify/assert"
 )
-
-// --------------------------
-// Mock FileInfo for testing
-// --------------------------
-type mockFileInfo struct {
-	name    string
-	size    int64
-	mode    fs.FileMode
-	modTime time.Time
-	isDir   bool
-	sys     interface{}
-}
-
-func (m mockFileInfo) Name() string       { return m.name }
-func (m mockFileInfo) Size() int64        { return m.size }
-func (m mockFileInfo) Mode() fs.FileMode  { return m.mode }
-func (m mockFileInfo) ModTime() time.Time { return m.modTime }
-func (m mockFileInfo) IsDir() bool        { return m.isDir }
-func (m mockFileInfo) Sys() interface{}   { return m.sys }
 
 // Helper to create temporary ContextFile
 func newTempContextFile(t *testing.T, name string, content []byte) filehandler.Context {

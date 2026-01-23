@@ -18,6 +18,8 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strings"
+
+	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
 // plugin/date_strategy.go
@@ -31,7 +33,7 @@ func (s *DirChainStrategy) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (s *DirChainStrategy) FinalDirPath(ctx Context) (string, error) {
+func (s *DirChainStrategy) FinalDirPath(ctx strategy.Context) (string, error) {
 	if ctx.Info().IsDir() {
 		return "", fmt.Errorf("filePath %s is a directory, expected a file", ctx.PathFromSource())
 	}
@@ -56,7 +58,7 @@ func (s *DirChainStrategy) FinalDirPath(ctx Context) (string, error) {
 }
 
 func init() {
-	RegisterStrategy("dirchain", func() Strategy {
+	strategy.RegisterStrategy("dirchain", func() strategy.Strategy {
 		slog.Debug("Create a strategy", "name", "dirchain")
 		return &DirChainStrategy{}
 	})

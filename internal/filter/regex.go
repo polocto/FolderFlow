@@ -18,6 +18,7 @@ import (
 	"log/slog"
 	"regexp"
 
+	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,7 +28,7 @@ type RegexFilter struct {
 	compiledRe []*regexp.Regexp
 }
 
-func (f *RegexFilter) Match(ctx Context) (bool, error) {
+func (f *RegexFilter) Match(ctx filter.Context) (bool, error) {
 	if ctx == nil {
 		return false, fmt.Errorf("context is nil")
 	}
@@ -81,7 +82,7 @@ func (f *RegexFilter) LoadConfig(config map[string]interface{}) error {
 }
 
 func init() {
-	RegisterFilter("regex", func() Filter {
+	filter.RegisterFilter("regex", func() filter.Filter {
 		return &RegexFilter{}
 	})
 }

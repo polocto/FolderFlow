@@ -16,6 +16,8 @@ package strategy
 import (
 	"log/slog"
 	"path/filepath"
+
+	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
 // plugin/date_strategy.go
@@ -36,14 +38,14 @@ func (s *DateStrategy) LoadConfig(config map[string]interface{}) error {
 	return nil
 }
 
-func (s *DateStrategy) FinalDirPath(ctx Context) (string, error) {
+func (s *DateStrategy) FinalDirPath(ctx strategy.Context) (string, error) {
 	yearMonth := ctx.Info().ModTime().Format(s.Format)
 	finalDest := filepath.Join(ctx.DstDir(), yearMonth, ctx.Info().Name())
 	return finalDest, nil
 }
 
 func init() {
-	RegisterStrategy("date", func() Strategy {
+	strategy.RegisterStrategy("date", func() strategy.Strategy {
 		slog.Debug("Create a strategy", "name", "date")
 		return &DateStrategy{}
 	})
