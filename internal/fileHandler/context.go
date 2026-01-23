@@ -101,7 +101,11 @@ func (c *ContextFile) GetHash() ([sha256.Size]byte, error) {
 	if err != nil {
 		return c.hash, fmt.Errorf("cannot open file %q: %w", c.absPath, err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			slog.Warn("failed to close file : ", "path", c.absPath, "err", err)
+		}
+	}()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {

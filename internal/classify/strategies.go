@@ -24,6 +24,9 @@ import (
 func destPath(file filehandler.Context, sourceDir, destDir string, strat strategy.Strategy) (string, error) {
 
 	ctx, err := strategy.NewContextStrategy(file, sourceDir, destDir)
+	if err != nil {
+		return "", fmt.Errorf("strategy failed to create a strategy context: path=%q strategy=%s err=%w", file.Path(), strat.Selector(), err)
+	}
 
 	finalDst, err := strat.FinalDirPath(ctx)
 	if err != nil {

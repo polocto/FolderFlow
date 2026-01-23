@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -44,9 +45,10 @@ type ContextFilter struct {
 
 // --- sync.Pool for reusable buffers ---
 var chunkPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		// Default buffer size, can be overridden per ReadChunks call
-		return make([]byte, 4096)
+		buf := make([]byte, 4096)
+		return &buf
 	},
 }
 
@@ -79,7 +81,11 @@ func (c *ContextFilter) WithInput(fn func(r io.Reader) error) error {
 	if err != nil {
 		return fmt.Errorf("cannot open file %q: %w", c.path, err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			slog.Warn("failed to close file : ", "path", c.path, "err", err)
+		}
+	}()
 
 	return fn(f)
 }
@@ -105,9 +111,16 @@ func (c *ContextFilter) ReadChunks(chunkSize int, fn func([]byte) error) error {
 	return c.WithInput(func(r io.Reader) error {
 		// Get a buffer from the pool
 		var buf []byte
+		var bufPtr *[]byte
 		if chunkSize == 4096 {
-			buf = chunkPool.Get().([]byte)
-			defer chunkPool.Put(buf)
+			v := chunkPool.Get()
+			var ok bool
+			bufPtr, ok = v.(*[]byte)
+			if !ok {
+				return fmt.Errorf("chunkPool returned unexpected type")
+			}
+			defer chunkPool.Put(bufPtr)
+			buf = *bufPtr
 		} else {
 			// Custom-sized buffer, allocate normally
 			buf = make([]byte, chunkSize)
