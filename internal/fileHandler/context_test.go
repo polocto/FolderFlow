@@ -29,7 +29,7 @@ func tempFile(t *testing.T, dir, name string, content []byte) string {
 
 	path := filepath.Join(dir, name)
 
-	require.NoError(t, os.WriteFile(path, content, 0644))
+	require.NoError(t, os.WriteFile(path, content, 0o644))
 
 	return path
 }
@@ -38,7 +38,7 @@ func tempSubDir(t *testing.T, parent, name string) string {
 	t.Helper()
 
 	path := filepath.Join(parent, name)
-	require.NoError(t, os.MkdirAll(path, 0755))
+	require.NoError(t, os.MkdirAll(path, 0o755))
 	return path
 }
 
@@ -71,7 +71,6 @@ func TestNewContextExistingFile(t *testing.T) {
 	if !file.Mode().IsRegular() {
 		t.Fatalf("expected regular file, got mode %v", file.Mode())
 	}
-
 }
 
 func TestNewContextNoneExistingFile(t *testing.T) {
@@ -84,5 +83,4 @@ func TestNewContextNoneExistingFile(t *testing.T) {
 	if file != nil {
 		t.Fatal("file is not nil", err)
 	}
-
 }

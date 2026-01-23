@@ -40,7 +40,10 @@ func ValidateConfiguration(cfg Config) error {
 		}
 
 		if cfg.Regroup != nil && src == cfg.Regroup.Path {
-			return fmt.Errorf("le répertoire source est identique au chemin de regroupement: %s", src)
+			return fmt.Errorf(
+				"le répertoire source est identique au chemin de regroupement: %s",
+				src,
+			)
 		}
 	}
 
@@ -61,7 +64,11 @@ func ValidateConfiguration(cfg Config) error {
 				return fmt.Errorf("le chemin de destination n'est pas un répertoire: %s", dest.Path)
 			}
 			if err := testWrite(dest.Path); err != nil {
-				return fmt.Errorf("pas de droit d'écriture sur le répertoire de destination %s: %w", dest.Path, err)
+				return fmt.Errorf(
+					"pas de droit d'écriture sur le répertoire de destination %s: %w",
+					dest.Path,
+					err,
+				)
 			}
 		} else if os.IsNotExist(err) {
 			// N'existe pas → vérifier qu'on peut écrire dans le premier parent existant

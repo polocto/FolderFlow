@@ -31,5 +31,4 @@ func replaceFile(src, dst string) error {
 		return fmt.Errorf("failed to replace %s with %s: %w", dst, src, err)
 	}
 	return nil
-
 }

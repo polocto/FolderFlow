@@ -42,7 +42,6 @@ func NewContextStrategy(file filehandler.Context, srcDir, dstDir string) (Contex
 	}
 
 	subPath, err := filepath.Rel(srcDir, file.Path())
-
 	if err != nil {
 		return nil, fmt.Errorf("cannot create strategy context: %w", err)
 	}

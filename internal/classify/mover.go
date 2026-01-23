@@ -36,7 +36,10 @@ const (
 	MoveFailed
 )
 
-func resolveConflict(src, dst filehandler.Context, onConflict string) (destPath string, action MoveAction, err error) {
+func resolveConflict(
+	src, dst filehandler.Context,
+	onConflict string,
+) (destPath string, action MoveAction, err error) {
 	destPath = dst.Path()
 	switch onConflict {
 	case "skip":
@@ -46,7 +49,12 @@ func resolveConflict(src, dst filehandler.Context, onConflict string) (destPath 
 	case "rename": // rename
 
 		if ok, err := filehandler.Equal(src, dst); err != nil {
-			return "", MoveFailed, fmt.Errorf("failed to compare files for equality : source=%s dest=%s err=%w", src.Path(), dst.Path(), err)
+			return "", MoveFailed, fmt.Errorf(
+				"failed to compare files for equality : source=%s dest=%s err=%w",
+				src.Path(),
+				dst.Path(),
+				err,
+			)
 		} else if ok {
 			slog.Warn("Source and destination files are identical, skipping move", "source", src.Path(), "dest", dst.Path())
 			action = MoveSkippedIdentical
@@ -62,7 +70,11 @@ func resolveConflict(src, dst filehandler.Context, onConflict string) (destPath 
 	return destPath, action, nil
 }
 
-func moveFile(file filehandler.Context, destPath, onConflict string, dryRun bool) (MoveAction, filehandler.Context, error) {
+func moveFile(
+	file filehandler.Context,
+	destPath, onConflict string,
+	dryRun bool,
+) (MoveAction, filehandler.Context, error) {
 	action := MoveMoved
 
 	if dst, err := filehandler.NewContextFile(destPath); err == nil {
@@ -91,7 +103,7 @@ func moveFile(file filehandler.Context, destPath, onConflict string, dryRun bool
 }
 
 func executeMove(file filehandler.Context, dst string) (newFile filehandler.Context, err error) {
-	if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	if err = os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return nil, err
 	}
 

@@ -40,7 +40,15 @@ func IsSubDirectory(parent, child string) bool {
 	// Calculer le relatif
 	rel, err := filepath.Rel(parentAbs, childAbs)
 	if err != nil {
-		slog.Error("Failed to compute relative path", "parent", parentAbs, "child", childAbs, "err", err)
+		slog.Error(
+			"Failed to compute relative path",
+			"parent",
+			parentAbs,
+			"child",
+			childAbs,
+			"err",
+			err,
+		)
 		return false
 	}
 
@@ -50,7 +58,15 @@ func IsSubDirectory(parent, child string) bool {
 	}
 
 	if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-		slog.Debug("Child is not a subdirectory of parent", "parent", parentAbs, "child", childAbs, "relative", rel)
+		slog.Debug(
+			"Child is not a subdirectory of parent",
+			"parent",
+			parentAbs,
+			"child",
+			childAbs,
+			"relative",
+			rel,
+		)
 		return false
 	}
 

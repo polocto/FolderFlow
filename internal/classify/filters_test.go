@@ -35,7 +35,7 @@ func (m *mockFilter) LoadConfig(map[string]interface{}) error { return nil }
 func createContextFile(t *testing.T, content []byte) filehandler.Context {
 	tmp := t.TempDir()
 	file := tmp + "/file.txt"
-	err := os.WriteFile(file, content, 0644)
+	err := os.WriteFile(file, content, 0o644)
 	require.NoError(t, err)
 
 	ctx, err := filehandler.NewContextFile(file)

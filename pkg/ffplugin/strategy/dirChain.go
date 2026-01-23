@@ -21,8 +21,7 @@ import (
 )
 
 // plugin/date_strategy.go
-type DirChainStrategy struct {
-}
+type DirChainStrategy struct{}
 
 func (s *DirChainStrategy) Selector() string {
 	return "dirchain"
@@ -54,7 +53,6 @@ func (s *DirChainStrategy) FinalDirPath(ctx Context) (string, error) {
 	}
 
 	return finalDest, nil
-
 }
 
 func init() {

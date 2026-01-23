@@ -28,7 +28,6 @@ type ExtensionFilter struct {
 }
 
 func (f *ExtensionFilter) Match(ctx Context) (bool, error) {
-
 	if ctx == nil {
 		return false, fmt.Errorf("context is nil")
 	}

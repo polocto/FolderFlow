@@ -29,7 +29,7 @@ import (
 func newTempContextFile(t *testing.T, name string, content []byte) filehandler.Context {
 	t.Helper()
 	tmpFile := t.TempDir() + "/" + name
-	err := os.WriteFile(tmpFile, content, 0644)
+	err := os.WriteFile(tmpFile, content, 0o644)
 	assert.NoError(t, err)
 
 	ctx, err := filehandler.NewContextFile(tmpFile)

@@ -128,7 +128,9 @@ func ListSymlinks(files []Context, checkTargets bool) (functional, broken, unkno
 	return
 }
 
-func SplitFiles(files []Context) (regular, funcSymlinks, brokenSymlinks, unknownSymlinks []Context) {
+func SplitFiles(
+	files []Context,
+) (regular, funcSymlinks, brokenSymlinks, unknownSymlinks []Context) {
 	regular = make([]Context, 0, len(files))
 	funcSymlinks = make([]Context, 0, len(files))
 	brokenSymlinks = make([]Context, 0, len(files))

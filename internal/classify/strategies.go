@@ -21,26 +21,46 @@ import (
 	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
-func destPath(file filehandler.Context, sourceDir, destDir string, strat strategy.Strategy) (string, error) {
-
+func destPath(
+	file filehandler.Context,
+	sourceDir, destDir string,
+	strat strategy.Strategy,
+) (string, error) {
 	ctx, err := strategy.NewContextStrategy(file, sourceDir, destDir)
 	if err != nil {
-		return "", fmt.Errorf("strategy failed to create a strategy context: path=%q strategy=%s err=%w", file.Path(), strat.Selector(), err)
+		return "", fmt.Errorf(
+			"strategy failed to create a strategy context: path=%q strategy=%s err=%w",
+			file.Path(),
+			strat.Selector(),
+			err,
+		)
 	}
 
 	finalDst, err := strat.FinalDirPath(ctx)
 	if err != nil {
-		return "", fmt.Errorf("strategy failed to compute destination path : strategy=%s err=%w", strat.Selector(), err)
+		return "", fmt.Errorf(
+			"strategy failed to compute destination path : strategy=%s err=%w",
+			strat.Selector(),
+			err,
+		)
 	}
 
 	if !fsutil.IsSubDirectory(destDir, finalDst) {
-		return "", fmt.Errorf("computed destination path is outside of destination directory : computedPath=%s destDir=%s", finalDst, destDir)
+		return "", fmt.Errorf(
+			"computed destination path is outside of destination directory : computedPath=%s destDir=%s",
+			finalDst,
+			destDir,
+		)
 	}
 
 	return finalDst, nil
 }
 
-func (c *Classifier) runStartegy(file filehandler.Context, sourceDir, destDir string, strat strategy.Strategy) (finalDst string, err error) {
+func (c *Classifier) runStartegy(
+	file filehandler.Context,
+	sourceDir, destDir string,
+	strat strategy.Strategy,
+) (finalDst string, err error) {
 	err = c.safeRun("strategy", func() (err error) {
 		finalDst, err = destPath(file, sourceDir, destDir, strat)
 		return err

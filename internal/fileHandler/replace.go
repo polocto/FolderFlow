@@ -21,7 +21,6 @@ import (
 )
 
 func copyAndRemove(src Context, dstPath string) (Context, error) {
-
 	dst, err := CopyFileAtomic(src, dstPath)
 	if err != nil {
 		return nil, err
@@ -40,10 +39,21 @@ func Replace(src Context, dstPath string) (Context, error) {
 
 	if err := replaceFile(src.Path(), dstPath); err != nil {
 		if errors.Is(err, syscall.EXDEV) {
-			slog.Warn("cannot move file, different filesystems trying copy and remove", "file", src.Path(), "destination", dstPath)
+			slog.Warn(
+				"cannot move file, different filesystems trying copy and remove",
+				"file",
+				src.Path(),
+				"destination",
+				dstPath,
+			)
 			return copyAndRemove(src, dstPath)
 		}
-		return nil, fmt.Errorf("failed to replace file: src=%s dst=%s err=%w", src.Path(), dstPath, err)
+		return nil, fmt.Errorf(
+			"failed to replace file: src=%s dst=%s err=%w",
+			src.Path(),
+			dstPath,
+			err,
+		)
 	}
 	src.setPath(dstPath)
 	return src, nil

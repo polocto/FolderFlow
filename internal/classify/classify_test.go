@@ -32,10 +32,10 @@ func newClassifier(cfg config.Config, dryRun bool) *Classifier {
 
 func writeFile(t *testing.T, path string) {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(path, []byte("data"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("data"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -94,7 +94,6 @@ func TestProcessFile_MoveError(t *testing.T) {
 	t.SkipNow()
 	if runtime.GOOS == "windows" {
 		t.Skipf("Skipping on %s: POSIX permissions are not enforced", runtime.GOOS)
-
 	}
 
 	tmp := t.TempDir()
@@ -102,7 +101,7 @@ func TestProcessFile_MoveError(t *testing.T) {
 	writeFile(t, src)
 
 	destDir := filepath.Join(tmp, "dest")
-	if err := os.Mkdir(destDir, 0555); err != nil { // read-only on POSIX
+	if err := os.Mkdir(destDir, 0o555); err != nil { // read-only on POSIX
 		t.Fatal(err)
 	}
 	c := newClassifier(config.Config{

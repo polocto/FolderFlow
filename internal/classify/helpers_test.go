@@ -26,7 +26,7 @@ func tempFile(t *testing.T, dir, name string, content []byte) string {
 
 	path := filepath.Join(dir, name)
 
-	require.NoError(t, os.WriteFile(path, content, 0644))
+	require.NoError(t, os.WriteFile(path, content, 0o644))
 
 	return path
 }

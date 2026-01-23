@@ -197,7 +197,15 @@ func (c *ContextFile) IsSubDirectory(parent string) bool {
 	// Get relative path from parent to child
 	rel, err := filepath.Rel(parentAbs, childAbs)
 	if err != nil {
-		slog.Error("Failed to compute relative path", "parent", parentAbs, "child", childAbs, "err", err)
+		slog.Error(
+			"Failed to compute relative path",
+			"parent",
+			parentAbs,
+			"child",
+			childAbs,
+			"err",
+			err,
+		)
 		return false
 	}
 
@@ -208,6 +216,7 @@ func (c *ContextFile) IsSubDirectory(parent string) bool {
 
 	return true
 }
+
 func (c *ContextFile) Kind() FileKind {
 	if c.IsDeleted() {
 		panic("use of deleted ContextFile")

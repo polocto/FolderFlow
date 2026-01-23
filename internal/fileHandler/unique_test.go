@@ -35,7 +35,7 @@ func TestGetUniquePath_FileExists(t *testing.T) {
 	dir := t.TempDir()
 
 	path := filepath.Join(dir, "file.txt")
-	if err := os.WriteFile(path, []byte("data"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("data"), 0o644); err != nil {
 		t.Fatalf("failed to create file: %v", err)
 	}
 
@@ -60,7 +60,7 @@ func TestGetUniquePath_MultipleConflicts(t *testing.T) {
 		} else {
 			p = filepath.Join(dir, fmt.Sprintf("file_%d.txt", i))
 		}
-		if err := os.WriteFile(p, []byte("data"), 0644); err != nil {
+		if err := os.WriteFile(p, []byte("data"), 0o644); err != nil {
 			t.Fatalf("failed to create file %s: %v", p, err)
 		}
 	}
@@ -77,7 +77,7 @@ func TestGetUniquePath_NoExtension(t *testing.T) {
 	dir := t.TempDir()
 
 	path := filepath.Join(dir, "file")
-	if err := os.WriteFile(path, []byte("data"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("data"), 0o644); err != nil {
 		t.Fatalf("failed to create file: %v", err)
 	}
 
@@ -93,7 +93,7 @@ func TestGetUniquePath_NestedExtension(t *testing.T) {
 	dir := t.TempDir()
 
 	path := filepath.Join(dir, "archive.tar.gz")
-	if err := os.WriteFile(path, []byte("data"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("data"), 0o644); err != nil {
 		t.Fatalf("failed to create file: %v", err)
 	}
 

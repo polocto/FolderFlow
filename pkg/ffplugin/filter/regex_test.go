@@ -76,7 +76,9 @@ func TestRegexFilterMatch(t *testing.T) {
 		Patterns:   []string{},
 		compiledRe: []*regexp.Regexp{},
 	}
-	match, err = filterEmpty.Match(&ContextFilter{"anyfile.txt", &MockFileInfo{NameVal: "anyfile.txt"}})
+	match, err = filterEmpty.Match(
+		&ContextFilter{"anyfile.txt", &MockFileInfo{NameVal: "anyfile.txt"}},
+	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
@@ -86,17 +88,24 @@ func TestRegexFilterMatch(t *testing.T) {
 
 	// Test: Match a filename with multiple patterns
 	filterMultiple := &RegexFilter{
-		Patterns:   []string{`^test\.txt$`, `^example\.md$`},
-		compiledRe: []*regexp.Regexp{regexp.MustCompile(`^test\.txt$`), regexp.MustCompile(`^example\.md$`)},
+		Patterns: []string{`^test\.txt$`, `^example\.md$`},
+		compiledRe: []*regexp.Regexp{
+			regexp.MustCompile(`^test\.txt$`),
+			regexp.MustCompile(`^example\.md$`),
+		},
 	}
-	match, err = filterMultiple.Match(&ContextFilter{"example.md", &MockFileInfo{NameVal: "example.md"}})
+	match, err = filterMultiple.Match(
+		&ContextFilter{"example.md", &MockFileInfo{NameVal: "example.md"}},
+	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
 	if !match {
 		t.Error("Match should return true for 'example.md'")
 	}
-	match, err = filterMultiple.Match(&ContextFilter{"other.doc", &MockFileInfo{NameVal: "other.doc"}})
+	match, err = filterMultiple.Match(
+		&ContextFilter{"other.doc", &MockFileInfo{NameVal: "other.doc"}},
+	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}

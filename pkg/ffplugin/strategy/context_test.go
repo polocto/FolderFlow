@@ -47,7 +47,7 @@ func (m mockFileInfo) Sys() interface{}   { return m.sys }
 func newTempContextFile(t *testing.T, name string, content []byte) filehandler.Context {
 	t.Helper()
 	tmpFile := t.TempDir() + "/" + name
-	err := os.WriteFile(tmpFile, content, 0644)
+	err := os.WriteFile(tmpFile, content, 0o644)
 	assert.NoError(t, err)
 
 	ctx, err := filehandler.NewContextFile(tmpFile)
@@ -92,10 +92,10 @@ func TestContext_Getters(t *testing.T) {
 func TestNewContext_RelativePaths(t *testing.T) {
 	tmpDir := t.TempDir()
 	subDir := filepath.Join(tmpDir, "folder", "sub")
-	assert.NoError(t, os.MkdirAll(subDir, 0755))
+	assert.NoError(t, os.MkdirAll(subDir, 0o755))
 
 	filePath := filepath.Join(subDir, "file.txt")
-	assert.NoError(t, os.WriteFile(filePath, []byte("content"), 0644))
+	assert.NoError(t, os.WriteFile(filePath, []byte("content"), 0o644))
 
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
@@ -110,7 +110,7 @@ func TestNewContext_RelativePaths(t *testing.T) {
 func TestNewContext_FileAtRoot(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "file.txt")
-	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0644))
+	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0o644))
 
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
@@ -125,7 +125,7 @@ func TestNewContext_FileOutsideSrcDir(t *testing.T) {
 	otherDir := t.TempDir() // outside srcDir
 
 	filePath := filepath.Join(otherDir, "file.txt")
-	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0644))
+	assert.NoError(t, os.WriteFile(filePath, []byte("data"), 0o644))
 
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)

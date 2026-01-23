@@ -56,7 +56,10 @@ var chunkPool = sync.Pool{
 // It returns an error if the path does not exist or cannot be stat-ed.
 func NewContextFilter(file filehandler.Context) (Context, error) {
 	if file == nil {
-		return nil, fmt.Errorf("cannot create filter context because file context is nil: %w", filehandler.ErrContextIsNil)
+		return nil, fmt.Errorf(
+			"cannot create filter context because file context is nil: %w",
+			filehandler.ErrContextIsNil,
+		)
 	}
 
 	return &ContextFilter{

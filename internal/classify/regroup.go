@@ -22,13 +22,19 @@ import (
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 )
 
-func execute(source filehandler.Context, target, mode string) (file filehandler.Context, err error) {
+func execute(
+	source filehandler.Context,
+	target, mode string,
+) (file filehandler.Context, err error) {
 	if source == nil {
-		return nil, fmt.Errorf("failed to regroup non existing file: %w", filehandler.ErrContextIsNil)
+		return nil, fmt.Errorf(
+			"failed to regroup non existing file: %w",
+			filehandler.ErrContextIsNil,
+		)
 	}
 	// Actual regrouping logic (symlink, hardlink, copy) would be implemented here
 	// Ensure the destination directory exists
-	if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 		return nil, err
 	}
 	switch mode {
@@ -49,5 +55,4 @@ func execute(source filehandler.Context, target, mode string) (file filehandler.
 	)
 
 	return file, err
-
 }

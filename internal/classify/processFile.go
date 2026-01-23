@@ -24,7 +24,13 @@ func (c *Classifier) processFile(sourceDir, filePath string) error {
 	defer c.stats.Time(&c.stats.Timing.Classify)()
 	for _, dest := range c.cfg.DestDirs {
 		if sourceDir == dest.Path {
-			slog.Warn("Source and destination paths overlap, skipping to avoid conflicts", "sourceDir", sourceDir, "destPath", dest.Path)
+			slog.Warn(
+				"Source and destination paths overlap, skipping to avoid conflicts",
+				"sourceDir",
+				sourceDir,
+				"destPath",
+				dest.Path,
+			)
 			continue
 		}
 		file, err := filehandler.NewContextFile(filePath)
@@ -48,7 +54,12 @@ func (c *Classifier) processFile(sourceDir, filePath string) error {
 		var regroupPath string
 		// Handle regrouping
 		if c.cfg.Regroup != nil || c.cfg.Regroup.Path != "" {
-			regroupPath, err = c.runStartegy(file, sourceDir, c.cfg.Regroup.Path, c.cfg.Regroup.Strategy)
+			regroupPath, err = c.runStartegy(
+				file,
+				sourceDir,
+				c.cfg.Regroup.Path,
+				c.cfg.Regroup.Strategy,
+			)
 			if err != nil {
 				c.stats.Error(err)
 				return err
@@ -82,7 +93,12 @@ func (c *Classifier) processFile(sourceDir, filePath string) error {
 
 		if c.cfg.Regroup != nil && c.cfg.Regroup.Path != "" {
 			if _, err := execute(regroupFile, regroupPath, c.cfg.Regroup.Mode); err != nil {
-				return fmt.Errorf("could not regroup file: path=%q regrouppath=%q err=%w", file.Path(), regroupPath, err)
+				return fmt.Errorf(
+					"could not regroup file: path=%q regrouppath=%q err=%w",
+					file.Path(),
+					regroupPath,
+					err,
+				)
 			}
 		}
 

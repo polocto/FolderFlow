@@ -28,7 +28,6 @@ func matchFile(file filehandler.Context, filters []filter.Filter) (bool, error) 
 	}
 
 	ctx, err := filter.NewContextFilter(file)
-
 	if err != nil {
 		return false, err
 	}

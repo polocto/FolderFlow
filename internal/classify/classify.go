@@ -52,12 +52,26 @@ func (c *Classifier) Classify() error {
 	)
 
 	if c.cfg.Regroup != nil {
-		slog.Info("All file will be regrouped", "rgpDir", c.cfg.Regroup.Path, "mode", c.cfg.Regroup.Mode)
+		slog.Info(
+			"All file will be regrouped",
+			"rgpDir",
+			c.cfg.Regroup.Path,
+			"mode",
+			c.cfg.Regroup.Mode,
+		)
 	}
 
 	for _, sourceDir := range c.cfg.SourceDirs {
 		if err := c.processSourceDir(sourceDir); err != nil {
-			slog.Error("Failed to process source directory", "sourceDir", sourceDir, "err", err, "stats", c.stats.String())
+			slog.Error(
+				"Failed to process source directory",
+				"sourceDir",
+				sourceDir,
+				"err",
+				err,
+				"stats",
+				c.stats.String(),
+			)
 			continue
 		}
 	}

@@ -26,7 +26,7 @@ func TestDateStrategy(t *testing.T) {
 	require.NoError(t, s.LoadConfig(map[string]interface{}{}))
 
 	file := filepath.Join(t.TempDir(), "a.txt")
-	require.NoError(t, os.WriteFile(file, []byte("x"), 0644))
+	require.NoError(t, os.WriteFile(file, []byte("x"), 0o644))
 	info, _ := os.Stat(file)
 
 	fileCtx := &ContextStrategy{

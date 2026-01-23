@@ -34,10 +34,17 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 		shouldErr bool
 	}{
 		{
-			name:      "Basic relative path",
-			relPath:   filepath.Join("Important", "Famille", "fichier.txt"),
-			destDir:   filepath.Join("srv", "backup"),
-			filePath:  filepath.Join("home", "polocto", "Document", "Important", "Famille", "fichier.txt"),
+			name:    "Basic relative path",
+			relPath: filepath.Join("Important", "Famille", "fichier.txt"),
+			destDir: filepath.Join("srv", "backup"),
+			filePath: filepath.Join(
+				"home",
+				"polocto",
+				"Document",
+				"Important",
+				"Famille",
+				"fichier.txt",
+			),
 			info:      mockFileInfo{isDir: false, name: "fichier.txt"},
 			expected:  filepath.Join("srv", "backup", "Important", "Famille", "fichier.txt"),
 			shouldErr: false,
@@ -52,10 +59,16 @@ func TestDirChainStrategy_FinalDirPath(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name:      "Path with spaces",
-			relPath:   filepath.Join("Important Project", "File with spaces.txt"),
-			destDir:   filepath.Join("srv", "backup"),
-			filePath:  filepath.Join("home", "polocto", "My Documents", "Important Project", "File with spaces.txt"),
+			name:    "Path with spaces",
+			relPath: filepath.Join("Important Project", "File with spaces.txt"),
+			destDir: filepath.Join("srv", "backup"),
+			filePath: filepath.Join(
+				"home",
+				"polocto",
+				"My Documents",
+				"Important Project",
+				"File with spaces.txt",
+			),
 			info:      mockFileInfo{isDir: false, name: "File with spaces.txt"},
 			expected:  filepath.Join("srv", "backup", "Important Project", "File with spaces.txt"),
 			shouldErr: false,
