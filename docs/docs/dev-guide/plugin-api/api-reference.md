@@ -15,22 +15,23 @@ This section documents the public Go interfaces used to extend FolderFlow.
 Strategies define **how destination paths are computed** for files.
 
 ```go
+type Context interface {
+	PathFromSource() string
+	DstDir() string
+	Info() fs.FileInfo
+}
+
 type Strategy interface {
-    FinalDirPath(srcDir, destDir, filePath string, info fs.FileInfo) (string, error)
-    Selector() string
-    LoadConfig(config map[string]interface{}) error
+	FinalDirPath(ctx Context) (string, error)
+	Selector() string
+	LoadConfig(config map[string]interface{}) error
 }
 ```
 
 ### `FinalDirPath`
 
 ```go
-FinalDirPath(
-  srcDir string,
-  destDir string,
-  filePath string,
-  info fs.FileInfo,
-) (string, error)
+func FinalDirPath(ctx Context) (string, error)
 ```
 
 **Purpose**
@@ -43,15 +44,12 @@ Computes the final directory where a file should be placed.
 - MUST return a directory path (not a filename)
 
 **Parameters**
-- `srcDir`: root source directory
-- `destDir`: root destination directory
-- `filePath`: path to the file being processed
-- `info`: file metadata
+- `ctx` that should return all usefull information for strategy computation
 
 ### `Selector`
 
 ```go
-Selector() string
+func Selector() string
 ```
 
 Returns a **unique** identifier for the strategy.
@@ -66,7 +64,7 @@ This value is used in configuration files.
 ### `LoadConfig`
 
 ```go
-LoadConfig(config map[string]interface{}) error
+func LoadConfig(config map[string]interface{}) error
 ```
 
 LoadConfig receives the content of the `config` block from the YAML configuration verbatim.
@@ -83,25 +81,30 @@ Implementations should:
 Filters define which files should be processed.
 
 ```go
+type Context interface {
+	Info() fs.FileInfo
+	WithInput(fn func(r io.Reader) error) error
+	WithInputLimited(maxBytes int64, fn func(r io.Reader) error) error
+	ReadChunks(chunkSize int, fn func([]byte) error) error
+}
+
 type Filter interface {
-    Match(path string, info fs.FileInfo) (bool, error)
-    Selector() string
-    LoadConfig(config map[string]interface{}) error
+	Match(ctx Context) (bool, error)
+	Selector() string
+	LoadConfig(config map[string]interface{}) error
 }
 ```
 
 ### `Match`
 
 ```go
-Match(path string, info fs.FileInfo) (bool, error)
+func Match(ctx Context) (bool, error)
 ```
 
 Returns true if the file matches the filter criteria.
 
 Filters:
-- Should be fast
-- Should not modify the filesystem
-- Can inspect file and its metadata
+- `ctx` that should return all usefull information for filter computation
 
 ### `Selector`
 
@@ -116,6 +119,12 @@ Loads filter-specific configuration.
 Strategies and filters must be registerd before use.
 
 Registration happens in an `init()` function.
+
+Force import in `main.go`
+
+```go
+import _ "github.com/yourorg/folderflow/plugins/myfilter"
+```
 
 ### Registering a Strategy
 
