@@ -14,11 +14,18 @@
 package filehandler
 
 import (
-	"errors"
+	"fmt"
+	"os"
 )
 
-var ErrContextIsNil = errors.New("file context is nil")
+func Remove(file Context) error {
+	if file == nil {
+		return fmt.Errorf("failed to remove file: %w", ErrContextIsNil)
+	}
 
-var ErrNotRegular = errors.New("file is not regular")
-
-var ErrContextDeleted = errors.New("trying to access a deleted context")
+	if err := os.Remove(file.Path()); err != nil {
+		return fmt.Errorf("failed to delete file: path=%q err=%w", file.Path(), err)
+	}
+	file.delete()
+	return nil
+}

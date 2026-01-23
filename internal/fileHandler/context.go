@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type FileKind int
@@ -33,12 +34,16 @@ const (
 	KindDir
 )
 
+// Context represents a filesystem object.
+// Once deleted, any method call except IsDeleted() will panic.
 type Context interface {
 	Path() string
 	setPath(newPath string)
 	GetHash() ([sha256.Size]byte, error)
 	IsRegular() bool
 	Kind() FileKind
+	delete()
+	IsDeleted() bool
 	fs.FileInfo
 }
 
@@ -50,9 +55,26 @@ type ContextFile struct {
 	hasHash     bool
 }
 
+type deletedFileInfo struct{}
+
+func (deletedFileInfo) Name() string       { panic("use of deleted ContextFile") }
+func (deletedFileInfo) Size() int64        { panic("use of deleted ContextFile") }
+func (deletedFileInfo) Mode() fs.FileMode  { panic("use of deleted ContextFile") }
+func (deletedFileInfo) ModTime() time.Time { panic("use of deleted ContextFile") }
+func (deletedFileInfo) IsDir() bool        { panic("use of deleted ContextFile") }
+func (deletedFileInfo) Sys() any           { panic("use of deleted ContextFile") }
+
 // NewContext creates a new Context for the given path.
 // It returns an error if the path does not exist or cannot be stat-ed.
 func NewContextFile(filePath string) (Context, error) {
+	file, err := newContextFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func newContextFile(filePath string) (*ContextFile, error) {
 	info, err := os.Lstat(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to stat the file %s: err=%w", filePath, err)
@@ -80,15 +102,35 @@ func NewContextFile(filePath string) (Context, error) {
 	}, nil
 }
 
+func newContextFileWithHash(filePath string, hash [sha256.Size]byte) (Context, error) {
+	file, err := newContextFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	file.hash = hash
+	file.hasHash = true
+
+	return file, err
+}
+
 func (c *ContextFile) Path() string {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	return c.absPath
 }
 
 func (c *ContextFile) setPath(newPath string) {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	c.absPath = newPath
 }
 
 func (c *ContextFile) GetHash() ([sha256.Size]byte, error) {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	if c.hasHash {
 		return c.hash, nil
 	}
@@ -119,18 +161,31 @@ func (c *ContextFile) GetHash() ([sha256.Size]byte, error) {
 }
 
 func (c *ContextFile) IsRegular() bool {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	return c.Mode().IsRegular()
 }
 
 func (c *ContextFile) IsSymLink() bool {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	return c.Mode()&os.ModeSymlink != 0
 }
 
+func (c *ContextFile) IsDeleted() bool {
+	return c.absPath == ""
+}
+
 func (c *ContextFile) IsSubDirectory(parent string) bool {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	// Convert to absolute path
 	parentAbs, err := filepath.Abs(parent)
 	if err != nil {
-		slog.Error("Failed to get parent absolute path", "path", parentAbs, "err", err)
+		slog.Error("Failed to get parent absolute path", "path", parent, "err", err)
 		return false
 	}
 
@@ -154,5 +209,22 @@ func (c *ContextFile) IsSubDirectory(parent string) bool {
 	return true
 }
 func (c *ContextFile) Kind() FileKind {
+	if c.IsDeleted() {
+		panic("use of deleted ContextFile")
+	}
 	return c.kind
+}
+
+func (c *ContextFile) delete() {
+	if c.IsDeleted() {
+		return
+	}
+	// Invalidate path
+	c.absPath = ""
+
+	// Clear cached data
+	c.FileInfo = deletedFileInfo{}
+	c.kind = KindUnknown
+	c.hasHash = false
+	c.hash = [sha256.Size]byte{}
 }

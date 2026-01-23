@@ -27,7 +27,7 @@ type Classifier struct {
 }
 
 func NewClassifier(cfg config.Config, s *stats.Stats, dryRun bool) (*Classifier, error) {
-	if err := validateConfiguration(cfg); err != nil {
+	if err := config.ValidateConfiguration(cfg); err != nil {
 		return nil, err
 	}
 

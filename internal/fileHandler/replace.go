@@ -13,16 +13,38 @@
 
 package filehandler
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"log/slog"
+	"syscall"
+)
 
-func Replace(src Context, dstPath string) error {
+func copyAndRemove(src Context, dstPath string) (Context, error) {
+
+	dst, err := CopyFileAtomic(src, dstPath)
+	if err != nil {
+		return nil, err
+	}
+	err = Remove(src)
+	if err != nil {
+		slog.Warn("failed to remove file after copying it", "path", src.Path())
+	}
+	return dst, err
+}
+
+func Replace(src Context, dstPath string) (Context, error) {
 	if src == nil {
-		return fmt.Errorf("failed to replace file: dst=%s err=%w", dstPath, ErrContextIsNil)
+		return nil, fmt.Errorf("failed to replace file: dst=%s err=%w", dstPath, ErrContextIsNil)
 	}
 
 	if err := replaceFile(src.Path(), dstPath); err != nil {
-		return fmt.Errorf("failed to replace file: src=%s dst=%s err=%w", src.Path(), dstPath, err)
+		if errors.Is(err, syscall.EXDEV) {
+			slog.Warn("cannot move file, different filesystems trying copy and remove", "file", src.Path(), "destination", dstPath)
+			return copyAndRemove(src, dstPath)
+		}
+		return nil, fmt.Errorf("failed to replace file: src=%s dst=%s err=%w", src.Path(), dstPath, err)
 	}
 	src.setPath(dstPath)
-	return nil
+	return src, nil
 }

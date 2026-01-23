@@ -22,7 +22,6 @@ import (
 	"path/filepath"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
-	"github.com/polocto/FolderFlow/internal/fsutil"
 )
 
 type MoveAction int
@@ -52,7 +51,7 @@ func resolveConflict(src, dst filehandler.Context, onConflict string) (destPath 
 			slog.Warn("Source and destination files are identical, skipping move", "source", src.Path(), "dest", dst.Path())
 			action = MoveSkippedIdentical
 		} else {
-			destPath = fsutil.GetUniquePath(dst.Path())
+			destPath = filehandler.GetUniquePath(dst.Path())
 			slog.Warn("Renaming destination file to avoid conflict", "originalDest", dst.Path(), "newDest", destPath)
 			action = MoveRenamed
 		}
@@ -97,15 +96,8 @@ func executeMove(file filehandler.Context, dst string) (newFile filehandler.Cont
 	}
 
 	// Tentative rapide et atomique
-	if err = filehandler.Replace(file, dst); err == nil {
-		return nil, nil
-	} else if !fsutil.IsCrossDeviceError(err) {
-		// Erreur autre que EXDEV → vraie erreur
-		return nil, fmt.Errorf("failed to rename file : src=%s dst=%s err=%w", file.Path(), dst, err)
-	}
-	// Fallback : copy + fsync + remove
-	if file, err = filehandler.CopyFileAtomic(file, dst); err != nil {
-		return nil, fmt.Errorf("failed to copy file : src=%s dst=%s err=%w", file.Path(), dst, err)
+	if newFile, err = filehandler.Replace(file, dst); err == nil {
+		return newFile, nil
 	}
 
 	return newFile, nil

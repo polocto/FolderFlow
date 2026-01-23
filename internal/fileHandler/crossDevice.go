@@ -15,10 +15,14 @@ package filehandler
 
 import (
 	"errors"
+	"os"
+	"syscall"
 )
 
-var ErrContextIsNil = errors.New("file context is nil")
-
-var ErrNotRegular = errors.New("file is not regular")
-
-var ErrContextDeleted = errors.New("trying to access a deleted context")
+func IsCrossDeviceError(err error) bool {
+	var linkErr *os.LinkError
+	if errors.As(err, &linkErr) {
+		return errors.Is(linkErr.Err, syscall.EXDEV)
+	}
+	return false
+}

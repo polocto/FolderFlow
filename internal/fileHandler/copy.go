@@ -14,6 +14,7 @@
 package filehandler
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"log/slog"
@@ -25,6 +26,12 @@ func CopyFileAtomic(file Context, dst string) (Context, error) {
 	if file == nil {
 		return nil, fmt.Errorf("cannot copy: %w", ErrContextIsNil)
 	}
+
+	srcHash, err := file.GetHash()
+	if err != nil {
+		return nil, err
+	}
+
 	in, err := os.Open(file.Path())
 	if err != nil {
 		return nil, err
@@ -44,7 +51,7 @@ func CopyFileAtomic(file Context, dst string) (Context, error) {
 	// Ensure temp file is closed & deleted on any error
 	defer func() {
 		if cerr := tmpFile.Close(); cerr != nil && err == nil {
-			err = cerr
+			slog.Warn("failed to close temp file", "path", tmpPath, "error", cerr)
 		}
 		if err != nil {
 			if rmErr := os.Remove(tmpPath); rmErr != nil {
@@ -53,12 +60,23 @@ func CopyFileAtomic(file Context, dst string) (Context, error) {
 		}
 	}()
 
-	if _, err := io.Copy(tmpFile, in); err != nil {
+	h := sha256.New()
+
+	writer := io.MultiWriter(h, tmpFile)
+
+	if _, err := io.Copy(writer, in); err != nil {
 		return nil, err
 	}
 
 	if err := tmpFile.Sync(); err != nil {
 		return nil, err
+	}
+
+	var tmpHash [sha256.Size]byte
+	copy(tmpHash[:], h.Sum(nil))
+
+	if tmpHash != srcHash {
+		return nil, fmt.Errorf("failed to correctly copy file: path=%s", file.Path())
 	}
 
 	if err := replaceFile(tmpPath, dst); err != nil {
@@ -72,5 +90,5 @@ func CopyFileAtomic(file Context, dst string) (Context, error) {
 		return nil, err
 	}
 
-	return NewContextFile(dst)
+	return newContextFileWithHash(dst, tmpHash)
 }

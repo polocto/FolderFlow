@@ -11,17 +11,15 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU General Public License for more details.
 
-package classify
+package config
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/polocto/FolderFlow/internal/config"
 )
 
-func validateConfiguration(cfg config.Config) error {
+func ValidateConfiguration(cfg Config) error {
 	// --- Vérification des sources ---
 	if len(cfg.SourceDirs) == 0 {
 		return fmt.Errorf("aucun répertoire source configuré")

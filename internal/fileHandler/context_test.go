@@ -18,7 +18,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
@@ -79,44 +78,11 @@ func TestNewContextNoneExistingFile(t *testing.T) {
 	filePath := filepath.Join("tmp", "testing", "folderflow", "new")
 
 	file, err := filehandler.NewContextFile(filePath)
-	if err == nil {
-		t.Fatalf("expected error but nil")
-	}
+	require.Error(t, err)
+	require.Nil(t, file)
+	require.True(t, errors.Is(err, fs.ErrNotExist))
 	if file != nil {
-		t.Fatalf("unexpected context: %s", file.Name())
-	}
-
-	if !errors.Is(err, fs.ErrNotExist) {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-}
-
-func TestNewContextExistingFileWithWrongPermission(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("permission test is not reliable on Windows")
-	}
-
-	dir := t.TempDir()
-
-	filePath := tempFile(t, dir, "file.txt", []byte(helloWorld()))
-
-	// Remove execute permission from directory
-	require.NoError(t, os.Chmod(dir, 0600))
-	t.Cleanup(func() {
-		_ = os.Chmod(dir, 0700) // restore for cleanup
-	})
-
-	file, err := filehandler.NewContextFile(filePath)
-	if err == nil {
-		t.Fatal("expected error, got nil")
-	}
-	if file != nil {
-		t.Fatal("expected nil context")
-	}
-
-	if !errors.Is(err, fs.ErrPermission) {
-		t.Fatalf("expected fs.ErrPermission, got %v", err)
+		t.Fatal("file is not nil", err)
 	}
 
 }

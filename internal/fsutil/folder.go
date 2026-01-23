@@ -14,12 +14,9 @@
 package fsutil
 
 import (
-	"errors"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 )
 
 func IsSubDirectory(parent, child string) bool {
@@ -58,12 +55,4 @@ func IsSubDirectory(parent, child string) bool {
 	}
 
 	return true
-}
-
-func IsCrossDeviceError(err error) bool {
-	var linkErr *os.LinkError
-	if errors.As(err, &linkErr) {
-		return errors.Is(linkErr.Err, syscall.EXDEV)
-	}
-	return false
 }

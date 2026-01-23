@@ -191,7 +191,7 @@ func TestMoveFile_NoConflict(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, MoveMoved, action)
 	require.FileExists(t, dst)
-	require.Nil(t, copy)
+	require.Equal(t, fhSrc, copy)
 }
 
 func TestMoveFile_ConflictSkip(t *testing.T) {
@@ -219,7 +219,7 @@ func TestMoveFile_Overwrite(t *testing.T) {
 	require.NoFileExists(t, src)
 	require.FileExists(t, dst)
 	require.Equal(t, MoveOverwritten, action)
-	require.Nil(t, copy)
+	require.Equal(t, fhSrc, copy)
 }
 
 func TestMoveFile_DryRun(t *testing.T) {

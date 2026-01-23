@@ -13,12 +13,12 @@
 
 package filehandler
 
-import (
-	"errors"
-)
-
-var ErrContextIsNil = errors.New("file context is nil")
-
-var ErrNotRegular = errors.New("file is not regular")
-
-var ErrContextDeleted = errors.New("trying to access a deleted context")
+func EnsureAlive(c Context) error {
+	if c == nil {
+		return ErrContextIsNil
+	}
+	if c.IsDeleted() {
+		return ErrContextDeleted
+	}
+	return nil
+}
