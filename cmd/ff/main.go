@@ -18,6 +18,8 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/polocto/FolderFlow/cmd"
+	_ "github.com/polocto/FolderFlow/internal/filter"
+	_ "github.com/polocto/FolderFlow/internal/strategy"
 )
 
 func main() {

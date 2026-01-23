@@ -28,6 +28,7 @@ Filters are evaluated independently and must be deterministic.
 FolderFlow provides the following built-in filters:
 
 - Extensions filter
+- Regex filter
 
 Each filter is documented in its own page.
 
@@ -52,6 +53,7 @@ package myfilter
 
 import (
     "io/fs"
+    "github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 )
 
 type MyFilter struct {
@@ -75,4 +77,12 @@ func init(){
         return &MyFilter{}
     })
 }
+```
+
+## Import package for build
+
+Force import in `main.go`
+
+```go
+import _ "github.com/yourorg/folderflow/plugins/myfilter"
 ```

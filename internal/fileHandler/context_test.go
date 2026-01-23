@@ -1,0 +1,78 @@
+// Copyright (c) 2026 Paul Sade.
+//
+// This file is part of the FolderFlow project.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3,
+// as published by the Free Software Foundation (see the LICENSE file).
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+
+package filehandler_test
+
+import (
+	"errors"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"testing"
+
+	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
+	"github.com/stretchr/testify/require"
+)
+
+func tempFile(t *testing.T, dir, name string, content []byte) string {
+	t.Helper()
+
+	path := filepath.Join(dir, name)
+
+	require.NoError(t, os.WriteFile(path, content, 0o644))
+
+	return path
+}
+
+func helloWorld() (str string) {
+	str = "Hello world!"
+	return str
+}
+
+func TestNewContextExistingFile(t *testing.T) {
+	filePath := tempFile(t, t.TempDir(), "file.txt", []byte(helloWorld()))
+
+	file, err := filehandler.NewContextFile(filePath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if file == nil {
+		t.Fatalf("unexpected error: %v", filehandler.ErrContextIsNil)
+	}
+
+	// Validate Info fields
+	if file.Name() != "file.txt" {
+		t.Fatalf("expected filename %q, got %q", "file.txt", file.Name())
+	}
+
+	expectedSize := int64(len(helloWorld()))
+	if file.Size() != expectedSize {
+		t.Fatalf("expected size %d, got %d", expectedSize, file.Size())
+	}
+
+	if !file.Mode().IsRegular() {
+		t.Fatalf("expected regular file, got mode %v", file.Mode())
+	}
+}
+
+func TestNewContextNoneExistingFile(t *testing.T) {
+	filePath := filepath.Join("tmp", "testing", "folderflow", "new")
+
+	file, err := filehandler.NewContextFile(filePath)
+	require.Error(t, err)
+	require.Nil(t, file)
+	require.True(t, errors.Is(err, fs.ErrNotExist))
+	if file != nil {
+		t.Fatal("file is not nil", err)
+	}
+}

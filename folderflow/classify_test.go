@@ -25,8 +25,9 @@ import (
 
 	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
-	"github.com/polocto/FolderFlow/internal/fsutil"
+	_ "github.com/polocto/FolderFlow/internal/filter"
 	"github.com/polocto/FolderFlow/internal/stats"
+	_ "github.com/polocto/FolderFlow/internal/strategy"
 )
 
 // FileInfo contient les informations nécessaires pour comparer deux fichiers
@@ -55,7 +56,7 @@ func TestMain(m *testing.M) {
 
 func mustCopyDir(t *testing.T, src, dst string) {
 	t.Helper()
-	if err := fsutil.CopyDir(src, dst); err != nil {
+	if err := CopyDir(src, dst); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
 }
@@ -89,7 +90,6 @@ func mockDirs(t *testing.T, cfg *config.Config, workDir string) string {
 }
 
 func assertDirEquals(t *testing.T, expectedPath, resultPath string) {
-
 	// Get files info for each result and expected directories
 	expectedFiles, err := walkDir(expectedPath)
 	if err != nil {
@@ -103,18 +103,33 @@ func assertDirEquals(t *testing.T, expectedPath, resultPath string) {
 	}
 
 	// Sort list to facilitate comparaison
-	sort.Slice(expectedFiles, func(i, j int) bool { return expectedFiles[i].Path < expectedFiles[j].Path })
-	sort.Slice(resultFiles, func(i, j int) bool { return resultFiles[i].Path < resultFiles[j].Path })
+	sort.Slice(
+		expectedFiles,
+		func(i, j int) bool { return expectedFiles[i].Path < expectedFiles[j].Path },
+	)
+	sort.Slice(
+		resultFiles,
+		func(i, j int) bool { return resultFiles[i].Path < resultFiles[j].Path },
+	)
 
 	// Files name, path and files comparaison
 	if len(expectedFiles) != len(resultFiles) {
-		t.Errorf("Not the same number of paths. Expected: %d\tResult: %d", len(expectedFiles), len(resultFiles))
+		t.Errorf(
+			"Not the same number of paths. Expected: %d\tResult: %d",
+			len(expectedFiles),
+			len(resultFiles),
+		)
 		return
 	}
 
 	for i := 0; i < len(expectedFiles); i++ {
-		if expectedFiles[i].Path != resultFiles[i].Path || expectedFiles[i].Hash != resultFiles[i].Hash {
-			t.Errorf("Files are different | Path1 : %s  & Path2 : %s\n", expectedFiles[i].Path, resultFiles[i].Path)
+		if expectedFiles[i].Path != resultFiles[i].Path ||
+			expectedFiles[i].Hash != resultFiles[i].Hash {
+			t.Errorf(
+				"Files are different | Path1 : %s  & Path2 : %s\n",
+				expectedFiles[i].Path,
+				resultFiles[i].Path,
+			)
 			return
 		}
 	}
@@ -130,7 +145,7 @@ func walkDir(root string) ([]FileInfo, error) {
 		}
 		if !info.IsDir() {
 			relPath, _ := filepath.Rel(root, path)
-			hash, err := fsutil.FileHash(path, nil)
+			hash, err := FileHash(path, nil)
 			files = append(files, FileInfo{
 				Path:      relPath,
 				Name:      info.Name(),
@@ -143,6 +158,7 @@ func walkDir(root string) ([]FileInfo, error) {
 
 	return files, err
 }
+
 func TestAllClassifyConfigs(t *testing.T) {
 	// Root directory for test datas
 	root := "../testdata"
@@ -182,7 +198,6 @@ func TestAllClassifyConfigs(t *testing.T) {
 
 		// Exécuter un sous-test pour chaque config.yaml
 		t.Run(testName, func(t *testing.T) {
-
 			cfg, err := config.LoadConfig(filepath.Join(caseDir, "config.yaml"))
 			if err != nil {
 				t.Fatal(err)
@@ -218,7 +233,6 @@ func TestAllClassifyConfigs(t *testing.T) {
 		})
 		return nil
 	})
-
 	if err != nil {
 		t.Fatal(err)
 	}

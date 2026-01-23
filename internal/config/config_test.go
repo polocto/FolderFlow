@@ -16,6 +16,8 @@ package config
 import (
 	"testing"
 
+	_ "github.com/polocto/FolderFlow/internal/filter"
+	_ "github.com/polocto/FolderFlow/internal/strategy"
 	"gopkg.in/yaml.v3"
 )
 

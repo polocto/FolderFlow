@@ -35,7 +35,7 @@ FolderFlow currently supports two plugin types.
 Filters decide **whether a file should be routed to a destination**.
 
 They:
-- Inspect file paths and metadata
+- Inspect file paths from source, metadata and data (read-only)
 - Return a match decision
 - Do not modify files or directories
 
@@ -43,6 +43,7 @@ Typical use cases:
 - Filter by extension
 - Filter by filename or pattern
 - Filter by size or attributes
+- Filter by content
 
 📘 See: [**API Reference → Filter Interface**](./api-reference.md#filter-interface)
 
@@ -54,7 +55,7 @@ Strategies decide **how destination paths are computed**.
 
 They:
 - Compute a directory path for each file
-- Preserve or reshape directory hierarchies
+- Preserve or reshape directory hierarchies and file's name
 - Never interact with the filesystem
 
 Typical use cases:

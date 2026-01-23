@@ -37,7 +37,6 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf, err := config.LoadConfig(configFile)
-
 		if err != nil {
 			slog.Error("An error occured while loading the config", "error", err)
 			return

@@ -50,6 +50,7 @@ package mystrategy
 
 import (
     "io/fs"
+    "github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
 type MyStrategy struct {
@@ -79,4 +80,12 @@ func init() {
     })
 }
 
+```
+
+## Import package for build
+
+Force import in `main.go`
+
+```go
+import _ "github.com/yourorg/folderflow/plugins/mystrategy"
 ```

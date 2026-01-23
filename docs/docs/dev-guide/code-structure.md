@@ -14,8 +14,10 @@ This page explains the high-level structure of the FolderFlow codebase.
 ```text
 cmd/
   ff/            # CLI entry point
-filter/          # Filter plugins and registry
-strategy/        # Strategy plugins and registry
+pkg/
+  ffplugin/
+    filter/          # Filter plugins API and registry
+    strategy/        # Strategy plugins API and registry
 internal/        # Core engine logic
 docs/            # Documentation (Docusaurus)
 ```
@@ -28,7 +30,7 @@ Contains:
 
 This layer should remain thin.
 
-### `filter`
+### `pkg/ffplugin/filter`
 Contains:
 - Filter interface
 - Built-in filters
@@ -39,7 +41,7 @@ Filters are:
 - Stateless after configuration
 - Non-destructive
 
-### `strategy`
+### `pkg/ffplugin/strategy`
 
 Contains:
 - Strategy interface

@@ -60,7 +60,10 @@ func (d *DestDir) UnmarshalYAML(node *yaml.Node) error {
 	case "skip", "overwrite", "rename":
 		// valid options
 	default:
-		return fmt.Errorf("invalid on_conflict option '%s', must be 'skip', 'overwrite' or 'rename'", temp.OnConflict)
+		return fmt.Errorf(
+			"invalid on_conflict option '%s', must be 'skip', 'overwrite' or 'rename'",
+			temp.OnConflict,
+		)
 	}
 
 	// Copy simple fields
@@ -82,7 +85,13 @@ func (d *DestDir) UnmarshalYAML(node *yaml.Node) error {
 		}
 		d.Filters = append(d.Filters, f)
 	}
-	slog.Debug("Loaded filters successfully", "dst", temp.Name, "Number of loaded filters", len(d.Filters))
+	slog.Debug(
+		"Loaded filters successfully",
+		"dst",
+		temp.Name,
+		"Number of loaded filters",
+		len(d.Filters),
+	)
 	// Load strategy
 	strat, err := strategy.NewStrategy(temp.Strategy.Name)
 	if err != nil {

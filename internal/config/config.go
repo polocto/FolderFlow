@@ -60,6 +60,12 @@ func (cfg *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	*cfg = Config(raw)
-	slog.Debug("Config unmarshaling successful", "SourceDirs", cfg.SourceDirs, "Number of DestDirs", len(cfg.DestDirs))
+	slog.Debug(
+		"Config unmarshaling successful",
+		"SourceDirs",
+		cfg.SourceDirs,
+		"Number of DestDirs",
+		len(cfg.DestDirs),
+	)
 	return nil
 }

@@ -24,9 +24,11 @@ type AppConfig struct {
 	DryRun bool
 }
 
-var debug bool
-var quiet bool
-var jsonLogs bool
+var (
+	debug    bool
+	quiet    bool
+	jsonLogs bool
+)
 
 var cfg AppConfig
 
@@ -84,8 +86,10 @@ func init() {
 
 	rootCmd.PersistentFlags().BoolVar(&cfg.DryRun, "dry-run", false, "dry run (no changes)")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "enable debugging logs")
-	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "suppress all logs except errors")
-	rootCmd.PersistentFlags().BoolVar(&jsonLogs, "json", false, "output logs in JSON format (only affects logs)")
+	rootCmd.PersistentFlags().
+		BoolVarP(&quiet, "quiet", "q", false, "suppress all logs except errors")
+	rootCmd.PersistentFlags().
+		BoolVar(&jsonLogs, "json", false, "output logs in JSON format (only affects logs)")
 
 	rootCmd.MarkFlagsMutuallyExclusive("debug", "quiet")
 

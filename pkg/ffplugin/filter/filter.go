@@ -15,13 +15,12 @@ package filter
 
 import (
 	"fmt"
-	"io/fs"
 )
 
 // Filter defines the interface for custom file filters.
 type Filter interface {
-	// Match performs the filter's logic, returning true if a correspondance has been found
-	Match(path string, info fs.FileInfo) (bool, error)
+	// Match performs the filter's logic, returning true if a correspondence has been found
+	Match(ctx Context) (bool, error)
 	// Selector returns a unique identifier for the strategy (e.g., "extension", "date")
 	Selector() string
 	// LoadConfig allows the filter to be configured from the YAML config
