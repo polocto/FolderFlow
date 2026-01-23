@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.2.0] - 2026-01-23
+
+### Added
+
 **FileHandler**
 
 New package `filehandler` added to handle all file operation leaving the classify package to an orchestrator role
@@ -50,6 +60,7 @@ Separate jobs for normal tests and race detector, linter in CI.
 **Logger**
 logger package have been deleted to simplify the slog configuration
 Legacy or unused tests that conflicted with the plugin architecture.
+
 
 ## [0.1.1] - 2025-12-28
 
