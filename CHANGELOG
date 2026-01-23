@@ -17,6 +17,8 @@ Auto tag on release
 
 ### Fixed
 
+PR update release version from static to dynamic in pr release ci job
+
 ### Changed
 
 ### Removed

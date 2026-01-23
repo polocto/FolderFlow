@@ -44,7 +44,7 @@ jobs:
 
       - name: Update CHANGELOG
         run: |
-          VERSION="0.2.0"
+          VERSION="${{ inputs.version }}"
           DATE="$(date +%Y-%m-%d)"
 
           awk -v version="$VERSION" -v date="$DATE" '
