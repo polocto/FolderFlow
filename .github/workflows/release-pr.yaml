@@ -100,6 +100,6 @@ jobs:
 
             - Promotes `[Unreleased]` to `${{ inputs.version }}`
             - SemVer-compliant release
-          base: ${{ github.ref_name }}
+          base: ${{ github.event.repository.default_branch }}
           branch: release/${{ inputs.version }}
 

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+Pull Request CI jobs create a PR to the main branch not the one that runs the ci job
+
 ### Changed
 
 ### Removed
