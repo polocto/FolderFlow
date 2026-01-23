@@ -6,7 +6,6 @@ on:
       version:
         description: "Next release version (SemVer, without v)"
         required: true
-        example: "1.1.2"
 
 permissions:
   contents: write
@@ -45,58 +44,50 @@ jobs:
 
       - name: Update CHANGELOG
         run: |
-          VERSION="${{ inputs.version }}"
+          VERSION="0.2.0"
           DATE="$(date +%Y-%m-%d)"
 
           awk -v version="$VERSION" -v date="$DATE" '
-          BEGIN {
-            in_unreleased = 0
-            found_unreleased = 0
-            buffer = ""
-          }
+          BEGIN { in_unreleased = 0 }
 
-          # Detect Unreleased header
           /^## \[Unreleased\]/ {
-            print "## [Unreleased]"
-            print ""
-            print "### Added"
-            print ""
-            print "### Changed"
-            print ""
-            print "### Removed"
-            print ""
-            print "## [" version "] - " date
-            found_unreleased = 1
-            in_unreleased = 1
-            next
-          }
-
-          # Store content under Unreleased
-          {
-            if (found_unreleased && in_unreleased) {
-              buffer = buffer $0 "\n"
-            } else {
               print
-            }
+              in_unreleased = 1
+              buffer = ""
+              next
           }
 
-          # Detect next version header
-          /^## \[/ && in_unreleased == 1 {
-            in_unreleased = 0
-            print buffer
-            print
-            print $0
-            next
+          /^## \[/ {
+              if (in_unreleased) {
+                  printf "\n### Added\n"
+                  printf "\n### Fixed\n"
+                  printf "\n### Changed\n"
+                  printf "\n### Removed\n"
+                  # End of Unreleased section, insert new version
+                  printf "\n## [%s] - %s\n%s\n", version, date, buffer
+                  in_unreleased = 0
+              }
+              print
+              next
+          }
+                
+          {
+              if (in_unreleased) {
+                  buffer = buffer $0 "\n"
+              } else {
+                  print
+              }
           }
 
           END {
-            if (found_unreleased && in_unreleased) {
-              print buffer
-            }
+              if (in_unreleased) {
+                  printf "\n## [%s] - %s\n%s\n", version, date, buffer
+              }
           }
           ' CHANGELOG > CHANGELOG.tmp
 
           mv CHANGELOG.tmp CHANGELOG
+
 
 
       - name: Open Pull Request
