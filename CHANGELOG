@@ -23,6 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+Pull Request CI jobs create a PR to the main branch not the one that runs the ci job
+
+### Changed
+
+### Removed
+
+
+## [0.2.0] - 2026-01-23
+
+### Added
+
 **FileHandler**
 
 New package `filehandler` added to handle all file operation leaving the classify package to an orchestrator role
