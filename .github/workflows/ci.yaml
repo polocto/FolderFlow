@@ -34,12 +34,24 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+        cache: true
     - name: Test
       run: go test -v ./...
 
   linter:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+        cache: true
     - name: Lint
       uses: golangci/golangci-lint-action@v9
       with:
