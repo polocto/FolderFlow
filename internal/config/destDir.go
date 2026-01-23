@@ -1,6 +1,15 @@
-// Copyright 2026 Paul Sade
-// GPLv3 - See LICENSE for details.
-
+// Copyright (c) 2026 Paul Sade.
+//
+// This file is part of the FolderFlow project.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3,
+// as published by the Free Software Foundation (see the LICENSE file).
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
 
 package config
 
@@ -51,7 +60,10 @@ func (d *DestDir) UnmarshalYAML(node *yaml.Node) error {
 	case "skip", "overwrite", "rename":
 		// valid options
 	default:
-		return fmt.Errorf("invalid on_conflict option '%s', must be 'skip', 'overwrite' or 'rename'", temp.OnConflict)
+		return fmt.Errorf(
+			"invalid on_conflict option '%s', must be 'skip', 'overwrite' or 'rename'",
+			temp.OnConflict,
+		)
 	}
 
 	// Copy simple fields
@@ -73,7 +85,13 @@ func (d *DestDir) UnmarshalYAML(node *yaml.Node) error {
 		}
 		d.Filters = append(d.Filters, f)
 	}
-	slog.Debug("Loaded filters successfully", "dst", temp.Name, "Number of loaded filters", len(d.Filters))
+	slog.Debug(
+		"Loaded filters successfully",
+		"dst",
+		temp.Name,
+		"Number of loaded filters",
+		len(d.Filters),
+	)
 	// Load strategy
 	strat, err := strategy.NewStrategy(temp.Strategy.Name)
 	if err != nil {
