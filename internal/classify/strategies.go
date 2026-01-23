@@ -18,6 +18,7 @@ import (
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
 	"github.com/polocto/FolderFlow/internal/fsutil"
+	internalstrategy "github.com/polocto/FolderFlow/internal/strategy"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
 
@@ -26,7 +27,7 @@ func destPath(
 	sourceDir, destDir string,
 	strat strategy.Strategy,
 ) (string, error) {
-	ctx, err := strategy.NewContextStrategy(file, sourceDir, destDir)
+	ctx, err := internalstrategy.NewContextStrategy(file, sourceDir, destDir)
 	if err != nil {
 		return "", fmt.Errorf(
 			"strategy failed to create a strategy context: path=%q strategy=%s err=%w",

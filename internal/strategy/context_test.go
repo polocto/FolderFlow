@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU General Public License for more details.
 
-package strategy
+package strategy_test
 
 import (
 	"os"
@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
+	"github.com/polocto/FolderFlow/internal/strategy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +36,7 @@ func newTempContextFile(t *testing.T, name string, content []byte) filehandler.C
 }
 
 func TestNewContext_NilFile(t *testing.T) {
-	ctx, err := NewContextStrategy(nil, "/src", "/dst")
+	ctx, err := strategy.NewContextStrategy(nil, "/src", "/dst")
 	assert.Nil(t, ctx)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "cannot create strategy context")
@@ -47,7 +48,7 @@ func TestNewContext_ValidFile(t *testing.T) {
 	srcDir := filepath.Dir(ctxFile.Path()) // parent directory of file
 	dstDir := t.TempDir()
 
-	ctx, err := NewContextStrategy(ctxFile, srcDir, dstDir)
+	ctx, err := strategy.NewContextStrategy(ctxFile, srcDir, dstDir)
 	assert.NoError(t, err)
 	assert.NotNil(t, ctx)
 
@@ -61,7 +62,7 @@ func TestNewContext_ValidFile(t *testing.T) {
 func TestContext_Getters(t *testing.T) {
 	ctxFile := newTempContextFile(t, "file.txt", []byte(""))
 
-	ctx, err := NewContextStrategy(ctxFile, filepath.Dir(ctxFile.Path()), t.TempDir())
+	ctx, err := strategy.NewContextStrategy(ctxFile, filepath.Dir(ctxFile.Path()), t.TempDir())
 	assert.NoError(t, err)
 
 	assert.Equal(t, filepath.Base(ctxFile.Path()), filepath.Base(ctx.PathFromSource()))
@@ -79,7 +80,7 @@ func TestNewContext_RelativePaths(t *testing.T) {
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
 
-	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
+	ctx, err := strategy.NewContextStrategy(ctxFile, tmpDir, t.TempDir())
 	assert.NoError(t, err)
 
 	expectedRel, _ := filepath.Rel(tmpDir, filePath)
@@ -94,7 +95,7 @@ func TestNewContext_FileAtRoot(t *testing.T) {
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
 
-	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
+	ctx, err := strategy.NewContextStrategy(ctxFile, tmpDir, t.TempDir())
 	assert.NoError(t, err)
 	assert.Equal(t, "file.txt", ctx.PathFromSource())
 }
@@ -109,7 +110,7 @@ func TestNewContext_FileOutsideSrcDir(t *testing.T) {
 	ctxFile, err := filehandler.NewContextFile(filePath)
 	assert.NoError(t, err)
 
-	ctx, err := NewContextStrategy(ctxFile, tmpDir, t.TempDir())
+	ctx, err := strategy.NewContextStrategy(ctxFile, tmpDir, t.TempDir())
 	assert.NoError(t, err)
 
 	rel, _ := filepath.Rel(tmpDir, filePath)

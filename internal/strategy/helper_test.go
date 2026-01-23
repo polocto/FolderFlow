@@ -69,9 +69,11 @@ type mockContext struct {
 func (mc *mockContext) PathFromSource() string {
 	return mc.pathFromSource
 }
+
 func (mc *mockContext) DstDir() string {
 	return mc.destinationDirectory
 }
+
 func (mc *mockContext) Info() fs.FileInfo {
 	return mc.info
 }

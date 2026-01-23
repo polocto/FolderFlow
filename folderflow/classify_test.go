@@ -25,9 +25,8 @@ import (
 
 	"github.com/polocto/FolderFlow/internal/classify"
 	"github.com/polocto/FolderFlow/internal/config"
-	"github.com/polocto/FolderFlow/internal/stats"
-
 	_ "github.com/polocto/FolderFlow/internal/filter"
+	"github.com/polocto/FolderFlow/internal/stats"
 	_ "github.com/polocto/FolderFlow/internal/strategy"
 )
 

@@ -17,6 +17,7 @@ import (
 	"log/slog"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
+	internalfilter "github.com/polocto/FolderFlow/internal/filter"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
 )
 
@@ -27,7 +28,7 @@ func matchFile(file filehandler.Context, filters []filter.Filter) (bool, error) 
 		return true, nil
 	}
 
-	ctx, err := filter.NewContextFilter(file)
+	ctx, err := internalfilter.NewContextFilter(file)
 	if err != nil {
 		return false, err
 	}

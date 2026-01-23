@@ -27,7 +27,9 @@ func TestRegexFilterMatch(t *testing.T) {
 	}
 
 	// Test: Match a file that matches the pattern
-	match, err := filter.Match(&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.txt"}})
+	match, err := filter.Match(
+		&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.txt"}},
+	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}
@@ -36,7 +38,9 @@ func TestRegexFilterMatch(t *testing.T) {
 	}
 
 	// Test: Match a file that does not match the pattern
-	match, err = filter.Match(&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.md"}})
+	match, err = filter.Match(
+		&mockContext{[]byte("Hello World"), &mockFileInfo{NameVal: "test.md"}},
+	)
 	if err != nil {
 		t.Fatalf("Match returned error: %v", err)
 	}

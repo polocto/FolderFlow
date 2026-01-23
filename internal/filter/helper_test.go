@@ -45,18 +45,23 @@ type mockContext struct {
 func (mc *mockContext) IsDir() bool {
 	return mc.info.IsDir()
 }
+
 func (mc *mockContext) BaseName() string {
 	return mc.info.Name()
 }
+
 func (mc *mockContext) Size() int64 {
 	return mc.info.Size()
 }
+
 func (mc *mockContext) ModTime() time.Time {
 	return mc.info.ModTime()
 }
+
 func (mc *mockContext) Info() fs.FileInfo {
 	return mc.info
 }
+
 func (mc *mockContext) WithInput(fn func(r io.Reader) error) error {
 	if mc.content == nil {
 		return fs.ErrInvalid

@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
-	"github.com/polocto/FolderFlow/pkg/ffplugin/filter"
+	"github.com/polocto/FolderFlow/internal/filter"
 	"github.com/stretchr/testify/assert"
 )
 
