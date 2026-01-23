@@ -17,7 +17,6 @@ import (
 	"fmt"
 
 	filehandler "github.com/polocto/FolderFlow/internal/fileHandler"
-	"github.com/polocto/FolderFlow/internal/fsutil"
 	internalstrategy "github.com/polocto/FolderFlow/internal/strategy"
 	"github.com/polocto/FolderFlow/pkg/ffplugin/strategy"
 )
@@ -46,7 +45,7 @@ func destPath(
 		)
 	}
 
-	if !fsutil.IsSubDirectory(destDir, finalDst) {
+	if !filehandler.IsSubDirectory(destDir, finalDst) {
 		return "", fmt.Errorf(
 			"computed destination path is outside of destination directory : computedPath=%s destDir=%s",
 			finalDst,

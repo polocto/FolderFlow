@@ -34,14 +34,6 @@ func tempFile(t *testing.T, dir, name string, content []byte) string {
 	return path
 }
 
-func tempSubDir(t *testing.T, parent, name string) string {
-	t.Helper()
-
-	path := filepath.Join(parent, name)
-	require.NoError(t, os.MkdirAll(path, 0o755))
-	return path
-}
-
 func helloWorld() (str string) {
 	str = "Hello world!"
 	return str
