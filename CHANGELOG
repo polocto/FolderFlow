@@ -13,9 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+**FileHandler**
+
+New package `filehandler` added to handle all file operation leaving the classify package to an orchestrator role
+
 **Test**
 
 Generic test to check if plugins work as expected
+
+**Futur Proof Plugins**
+
+Filter `Context` and Strategy `Context` provide structured access to file metadata and filesystem helpers.
+
+**Format**
+
+Using `golangci` to format the project for consistency
 
 ### Changed
 
@@ -29,10 +41,15 @@ Pour plus de détails, consultez le fichier [LICENSE](LICENSE).
 
 Logger is now handle in cmd/root for cli
 
+**CI**
+
+Separate jobs for normal tests and race detector, linter in CI.
+
 ### Removed
 
 **Logger**
 logger package have been deleted to simplify the slog configuration
+Legacy or unused tests that conflicted with the plugin architecture.
 
 ## [0.1.1] - 2025-12-28
 
